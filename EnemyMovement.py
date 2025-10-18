@@ -8,6 +8,9 @@ class Enemy(AnimatedSprite):
     def __init__(self, sprite_sheet, x, y, w, h):
         super().__init__(sprite_sheet, x, y, w, h)
 
+        self.hp = 50
+        self.strenght = 5
+
     def spawn(self):
         
         side = random.choice(["left", "right"])

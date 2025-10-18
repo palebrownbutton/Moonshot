@@ -23,7 +23,7 @@ prev_right = False
 ignore_return = False
 
 enemies = []
-for i in range(3):
+for i in range(1):
     enemy = Enemy("Skeleton_Spearman/Idle.png", -200, 590, 128, 128)
     enemy.spawn()
     enemy.resize(200, 200)
@@ -61,44 +61,47 @@ while True:
             left = pressed_keys[K_LEFT]
             right = pressed_keys[K_RIGHT]
 
-            if current_space and not prev_space and (left or right) and knight.on_ground:
-                if left:
-                    knight.direction = 'left'
-                elif right:
-                    knight.direction = 'right'
-                knight.attack_moving(character)
-                knight.resize(200, 200)
-                moved = True
-            else:
-                if left:
-                    knight.move_left(character)
+            if not getattr(knight, 'dead', False):
+                if current_space and not prev_space and (left or right) and knight.on_ground:
+                    if left:
+                        knight.direction = 'left'
+                    elif right:
+                        knight.direction = 'right'
+                    knight.attack_moving(character)
                     knight.resize(200, 200)
                     moved = True
-                elif right:
-                    knight.move_right(character)
-                    knight.resize(200, 200)
-                    moved = True
-                elif current_space and not prev_space:
-                    knight.attack_stationary(character, random.randint(1, 3))
-                    knight.resize(200, 200)
-                    moved = True
+                else:
+                    if left:
+                        knight.move_left(character)
+                        knight.resize(200, 200)
+                        moved = True
+                    elif right:
+                        knight.move_right(character)
+                        knight.resize(200, 200)
+                        moved = True
+                    elif current_space and not prev_space:
+                        knight.attack_stationary(character, random.randint(1, 3))
+                        knight.resize(200, 200)
+                        moved = True
 
             prev_space = current_space
 
-            if pressed_keys[K_UP] and knight.on_ground:
+            # only allow jumping when alive
+            if not getattr(knight, 'dead', False) and pressed_keys[K_UP] and knight.on_ground:
                 knight.jump(character)
                 knight.resize(200, 200)
                 moved = True
 
             down = pressed_keys[K_DOWN]
-            if down and not prev_down and knight.on_ground:
+            # defend only when alive
+            if not getattr(knight, 'dead', False) and down and not prev_down and knight.on_ground:
                 knight.defend_start(character)
                 knight.resize(200, 200)
-            if not down and prev_down:
+            if not getattr(knight, 'dead', False) and not down and prev_down:
                 knight.defend_stop(character)
                 knight.resize(200, 200)
 
-            if not moved and knight.on_ground and not knight.attacking and not knight.defending:
+            if not moved and knight.on_ground and not knight.attacking and not knight.defending and not getattr(knight, 'dead', False):
                 knight.change_animation(f"{character}/Idle.png", 128, 128)
                 knight.resize(200, 200)
             prev_down = down
@@ -109,16 +112,39 @@ while True:
             knight.draw(window)
 
             for enemy in enemies:
-                enemy.move(knight.rect.x)
+                
+                enemy.update()
                 enemy.draw(window)
                 enemy.resize(200, 200)
-                enemy.update()
 
                 if enemy.rect.colliderect(knight.rect):
                     
                     if not getattr(enemy, 'attacking', False):
                         enemy.attack()
                         enemy.resize(200, 200)
+
+                    if getattr(enemy, 'attacking', False) and not getattr(enemy, 'play_once_done', False):
+                        if not getattr(knight, 'took_damage', False) and not getattr(knight, 'dead', False):
+                            knight.hp = max(0, knight.hp - 5)
+                            knight.took_damage = True
+                            try:
+                                knight.change_animation(f"{character}/Hurt.png", 128, 128, play_once=True)
+                            except Exception:
+                                pass
+                            knight.resize(200, 200)
+                            if knight.hp <= 0:
+                                knight.die(character)
+
+                    if getattr(enemy, 'play_once_done', False):
+                        knight.took_damage = False
+                
+                else:
+                    enemy.move(knight.rect.x)
+
+            if getattr(knight, 'dead', False) and getattr(knight, 'play_once_done', False):
+                home = True
+                character = None
+                ignore_return = True
 
     display.update()
     clock.tick(60)

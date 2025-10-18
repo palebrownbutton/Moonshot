@@ -12,6 +12,29 @@ class Knight(AnimatedSprite):
         self.on_ground = True
         self.attacking = False
         self.defending = False
+        self.hp = 100
+        self.strenght = 10
+        self.dead = False
+        self.took_damage = False
+
+    def die(self, character):
+        if getattr(self, 'dead', False):
+            return
+        self.dead = True
+        self.attacking = False
+        self.defending = False
+        self.play_once = True
+        self.play_once_done = False
+
+        try:
+            self.change_animation(f"{character}/Dead.png", 128, 128, play_once=True)
+        except Exception:
+            pass
+        try:
+            if getattr(self, 'scale_w', None) is not None:
+                self.resize(self.scale_w, self.scale_h)
+        except Exception:
+            pass
 
     def update(self):
         gravity = 0.5
