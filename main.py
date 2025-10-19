@@ -31,7 +31,24 @@ for i in range(1):
 
 background = StillImage(0, 0, 800, 800, "background1.png")
 
-home = True
+def game_reset():
+    global knight, character, enemies, prev_space, prev_down, ignore_return
+
+    knight = Knight("Knight_1/Idle.png", 350, 590, 128, 128, "Knight_1")
+    knight.resize(200, 200)
+    character = None
+    prev_space = False
+    prev_down = False
+    ignore_return = False
+
+    enemies = []
+    for i in range(1):
+        enemy = Enemy("Skeleton_Spearman/Idle.png", -200, 590, 128, 128)
+        enemy.spawn()
+        enemy.resize(200, 200)
+        enemies.append(enemy)
+
+is_home = True
 
 while True:
 
@@ -39,10 +56,10 @@ while True:
         if e.type == QUIT:
             exit()
 
-    if home == True:
+    if is_home == True:
 
-        home = start_screen(window)
-        if home == False:
+        is_home = start_screen(window)
+        if is_home == False:
             ignore_return = True
         
     else:
@@ -86,14 +103,12 @@ while True:
 
             prev_space = current_space
 
-            # only allow jumping when alive
             if not getattr(knight, 'dead', False) and pressed_keys[K_UP] and knight.on_ground:
                 knight.jump(character)
                 knight.resize(200, 200)
                 moved = True
 
             down = pressed_keys[K_DOWN]
-            # defend only when alive
             if not getattr(knight, 'dead', False) and down and not prev_down and knight.on_ground:
                 knight.defend_start(character)
                 knight.resize(200, 200)
@@ -125,7 +140,7 @@ while True:
 
                     if getattr(enemy, 'attacking', False) and not getattr(enemy, 'play_once_done', False):
                         if not getattr(knight, 'took_damage', False) and not getattr(knight, 'dead', False):
-                            knight.hp = max(0, knight.hp - 5)
+                            knight.hp = max(0, knight.hp - 50)
                             knight.took_damage = True
                             try:
                                 knight.change_animation(f"{character}/Hurt.png", 128, 128, play_once=True)
@@ -142,9 +157,10 @@ while True:
                     enemy.move(knight.rect.x)
 
             if getattr(knight, 'dead', False) and getattr(knight, 'play_once_done', False):
-                home = True
-                character = None
-                ignore_return = True
+                is_home = None
+                is_home = game_over(window)
+                if is_home != None and not is_home:
+                    game_reset()
 
     display.update()
     clock.tick(60)

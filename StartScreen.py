@@ -69,3 +69,42 @@ def start_screen(window):
             # Add intrustions screen later
 
     return True
+
+playAgian = Buttons(100, 200, 600, 600, "play_again_button.png", "playAgain")
+home = Buttons(100, 380, 600, 600, "home_button.png", "home")
+game_over_txt = font.SysFont("Arial", 150)
+font.rendered_game_over = game_over_txt.render("Game Over...", True, (255, 0, 0))
+
+def game_over(window):
+    global is_selected, move_delay, last_move
+
+    if is_selected not in ("playAgain", "home"):
+        is_selected = "playAgain"
+
+    background.draw(window)
+    playAgian.draw(window, is_selected)
+    home.draw(window, is_selected)
+    window.blit(font.rendered_game_over, (45, 50))
+    
+    pressed= key.get_pressed()
+    now = time.get_ticks()
+    if pressed[K_UP] and now - last_move >= move_delay:
+        if is_selected == "playAgain":
+            is_selected = "home"
+        else:
+            is_selected = "playAgain"
+        last_move = now
+    elif pressed[K_DOWN] and now - last_move >= move_delay:
+        if is_selected == "home":
+            is_selected = "playAgain"
+        else:
+            is_selected = "home"
+        last_move = now
+    
+    if pressed[K_RETURN]:
+
+        if is_selected == "playAgain":
+            return False
+        else:
+            return True
+        
