@@ -42,13 +42,22 @@ def game_reset():
     ignore_return = False
 
     enemies = []
-    for i in range(1):
+    for i in range(3):
         enemy = Enemy("Skeleton_Spearman/Idle.png", -200, 590, 128, 128)
         enemy.spawn()
         enemy.resize(200, 200)
         enemies.append(enemy)
 
 is_home = True
+
+lives_image = StillImage(5, -40, 128, 128, "lives.png")
+lives = 5
+hearts = []
+xheart = 135
+for i in range(5):
+    heart = StillImage(xheart, 0, 45, 45, "hearts.png")
+    hearts.append(heart)
+    xheart += 50
 
 while True:
 
@@ -140,7 +149,11 @@ while True:
             window.fill((0, 0, 0))
             background.draw(window)
             knight.draw(window)
-
+            lives_image.draw(window)
+            
+            for heart in hearts:
+                heart.draw(window)
+            
             for enemy in enemies:
                 
                 enemy.update()
@@ -148,11 +161,11 @@ while True:
                 enemy.resize(200, 200)
 
                 if enemy.rect.x < knight.rect.x:
-                    distance = knight.rect.x - enemy.rect.x
+                    distance = (knight.rect.x - enemy.rect.x) - 30
                 else:
                     distance = enemy.rect.x - knight.rect.x
 
-                if enemy.rect.colliderect(knight.rect) >= distance:
+                if distance <= 60:
             
                     if not getattr(enemy, 'attacking', False):
                         enemy.attack()
@@ -168,7 +181,11 @@ while True:
                                 pass
                             knight.resize(200, 200)
                             if knight.hp <= 0:
-                                knight.die(character)
+                                lives -= 1
+                                hearts.remove(hearts[-1])
+                                knight.hp = 100
+                                if lives == 0:
+                                    knight.die(character)
 
                     if getattr(enemy, 'play_once_done', False):
                         knight.took_damage = False

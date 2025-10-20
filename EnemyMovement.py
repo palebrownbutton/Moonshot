@@ -23,19 +23,40 @@ class Enemy(AnimatedSprite):
             self.direction = "left"
         self.rect.y = 590
 
+        self.hp = 50
+        self.dead = False
+        self.attacking = False
+        self.play_once = False
+        self.play_once_done = False
+        self.death_timer = 0
+
+        self.change_animation("Skeleton_Spearman/Run.png", 128, 128)
+
     def move(self, player_x):
 
-        if self.direction == "right":
+        if self.direction == "right" and not getattr(self, "attacking", False):
              
-            self.rect.x += 2
-            if not getattr(self, 'attacking', False):
-                self.change_animation("Skeleton_Spearman/Run.png", 128, 128)
+            if player_x + 100 < self.rect.x:
+                self.direction = "left"
+                self.rect.x -= 2
+                if not getattr(self, 'attacking', False):
+                    self.change_animation("Skeleton_Spearman/Run.png", 128, 128)
+            else:
+                self.rect.x += 2
+                if not getattr(self, 'attacking', False):
+                    self.change_animation("Skeleton_Spearman/Run.png", 128, 128)
         
-        if self.direction == "left":
+        if self.direction == "left" and not getattr(self, "attacking", False):
 
-            self.rect.x -= 2
-            if not getattr(self, 'attacking', False):
-                self.change_animation("Skeleton_Spearman/Run.png", 128, 128)
+            if player_x - 100 > self.rect.x:
+                self.direction = "right"
+                self.rect.x += 2
+                if not getattr(self, 'attacking', False):
+                    self.change_animation("Skeleton_Spearman/Run.png", 128, 128)
+            else:
+                self.rect.x -= 2
+                if not getattr(self, 'attacking', False):
+                    self.change_animation("Skeleton_Spearman/Run.png", 128, 128)
             
     def attack(self):
         
@@ -47,19 +68,15 @@ class Enemy(AnimatedSprite):
             self.change_animation("Skeleton_Spearman/Attack_2.png", 128, 128, play_once=True)
 
     def update(self):
-       
-        # If HP drops to zero, start death sequence
+
         if getattr(self, 'hp', 0) <= 0 and not getattr(self, 'dead', False):
             self.die()
 
-        # After death animation finished, respawn/reset the enemy
         if getattr(self, 'dead', False) and getattr(self, 'play_once_done', False):
-            # clear dead state and play flags
             self.dead = False
             self.play_once = False
             self.play_once_done = False
 
-            # reset hp and respawn position
             self.hp = 50
             self.spawn()
 
@@ -68,7 +85,6 @@ class Enemy(AnimatedSprite):
             except Exception:
                 pass
 
-        # Clear attacking state after an attack animation (play-once) finishes
         if getattr(self, 'attacking', False) and getattr(self, 'play_once_done', False):
             self.attacking = False
             self.play_once = False
@@ -78,6 +94,12 @@ class Enemy(AnimatedSprite):
             except Exception:
                 pass
 
+        if self.dead:
+            self.death_timer += 1
+            if self.death_timer > 120:
+                self.spawn()
+            return
+
     def die(self):
         if getattr(self, 'dead', False):
             return
@@ -85,6 +107,7 @@ class Enemy(AnimatedSprite):
         self.attacking = False
         self.play_once = True
         self.play_once_done = False
+        self.death_timer = 0
 
         try:
             self.change_animation(f"Skeleton_Spearman/Dead.png", 128, 128, play_once=True)
@@ -95,5 +118,3 @@ class Enemy(AnimatedSprite):
                 self.resize(self.scale_w, self.scale_h)
         except Exception:
             pass
-        # Note: respawn (hp reset + spawn) is handled in update() after
-        # the death animation completes to ensure the animation is visible.
