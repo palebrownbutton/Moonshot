@@ -23,7 +23,7 @@ prev_right = False
 ignore_return = False
 
 enemies = []
-for i in range(1):
+for i in range(3):
     enemy = Enemy("Skeleton_Spearman/Idle.png", -200, 590, 128, 128)
     enemy.spawn()
     enemy.resize(200, 200)
@@ -87,6 +87,7 @@ while True:
                     knight.attack_moving(character)
                     knight.resize(200, 200)
                     moved = True
+
                 else:
                     if left:
                         knight.move_left(character)
@@ -100,6 +101,20 @@ while True:
                         knight.attack_stationary(character, random.randint(1, 3))
                         knight.resize(200, 200)
                         moved = True
+
+                if knight.attacking == True:
+
+                    for enemy in enemies:
+                        if enemy.rect.x < knight.rect.x:
+                            distance = knight.rect.x - enemy.rect.x
+                        else:
+                            distance = enemy.rect.x - knight.rect.x
+
+                        if knight.rect.colliderect(enemy.rect) >= distance:
+
+                            enemy.hp -= 10 
+                            if enemy.hp <= 0:
+                                enemy.die()
 
             prev_space = current_space
 
@@ -132,15 +147,20 @@ while True:
                 enemy.draw(window)
                 enemy.resize(200, 200)
 
-                if enemy.rect.colliderect(knight.rect):
-                    
+                if enemy.rect.x < knight.rect.x:
+                    distance = knight.rect.x - enemy.rect.x
+                else:
+                    distance = enemy.rect.x - knight.rect.x
+
+                if enemy.rect.colliderect(knight.rect) >= distance:
+            
                     if not getattr(enemy, 'attacking', False):
                         enemy.attack()
                         enemy.resize(200, 200)
 
                     if getattr(enemy, 'attacking', False) and not getattr(enemy, 'play_once_done', False):
                         if not getattr(knight, 'took_damage', False) and not getattr(knight, 'dead', False):
-                            knight.hp = max(0, knight.hp - 50)
+                            knight.hp = max(0, knight.hp - 5)
                             knight.took_damage = True
                             try:
                                 knight.change_animation(f"{character}/Hurt.png", 128, 128, play_once=True)

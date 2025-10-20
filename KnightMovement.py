@@ -60,7 +60,7 @@ class Knight(AnimatedSprite):
             self.direction = "left"
             self.rect.x -= 110
 
-        if self.rect.x > -200:
+        if self.rect.x > -117:
             self.rect.x -= 7
         if not getattr(self, 'attacking', False):
             self.change_animation(f"{knight_number}/Run.png", 128, 128)
@@ -71,7 +71,7 @@ class Knight(AnimatedSprite):
             self.direction = "right"
             self.rect.x += 110
 
-        if self.rect.x < 650:
+        if self.rect.x < 710:
             self.rect.x += 7
         if not getattr(self, 'attacking', False):
             self.change_animation(f"{knight_number}/Run.png", 128, 128)

@@ -10,6 +10,7 @@ class Enemy(AnimatedSprite):
 
         self.hp = 50
         self.strenght = 5
+        self.dead = False
 
     def spawn(self):
         
@@ -47,8 +48,52 @@ class Enemy(AnimatedSprite):
 
     def update(self):
        
+        # If HP drops to zero, start death sequence
+        if getattr(self, 'hp', 0) <= 0 and not getattr(self, 'dead', False):
+            self.die()
+
+        # After death animation finished, respawn/reset the enemy
+        if getattr(self, 'dead', False) and getattr(self, 'play_once_done', False):
+            # clear dead state and play flags
+            self.dead = False
+            self.play_once = False
+            self.play_once_done = False
+
+            # reset hp and respawn position
+            self.hp = 50
+            self.spawn()
+
+            try:
+                self.change_animation("Skeleton_Spearman/Run.png", 128, 128)
+            except Exception:
+                pass
+
+        # Clear attacking state after an attack animation (play-once) finishes
         if getattr(self, 'attacking', False) and getattr(self, 'play_once_done', False):
             self.attacking = False
             self.play_once = False
             self.play_once_done = False
-            self.change_animation("Skeleton_Spearman/Run.png", 128, 128)
+            try:
+                self.change_animation("Skeleton_Spearman/Run.png", 128, 128)
+            except Exception:
+                pass
+
+    def die(self):
+        if getattr(self, 'dead', False):
+            return
+        self.dead = True
+        self.attacking = False
+        self.play_once = True
+        self.play_once_done = False
+
+        try:
+            self.change_animation(f"Skeleton_Spearman/Dead.png", 128, 128, play_once=True)
+        except Exception:
+            pass
+        try:
+            if getattr(self, 'scale_w', None) is not None:
+                self.resize(self.scale_w, self.scale_h)
+        except Exception:
+            pass
+        # Note: respawn (hp reset + spawn) is handled in update() after
+        # the death animation completes to ensure the animation is visible.
