@@ -22,17 +22,18 @@ prev_left = False
 prev_right = False
 ignore_return = False
 
-enemies = []
-for i in range(3):
-    enemy = Enemy("Skeleton_Spearman/Idle.png", -200, 590, 128, 128)
-    enemy.spawn()
-    enemy.resize(200, 200)
-    enemies.append(enemy)
+skeletons = []
+max_skeletons = 3
+for i in range(max_skeletons):
+    skelton = Enemy("Skeleton_Spearman/Idle.png", -200, 590, 128, 128)
+    skelton.spawn()
+    skelton.resize(200, 200)
+    skeletons.append(skelton)
 
 background = StillImage(0, 0, 800, 800, "background1.png")
 
 def game_reset():
-    global knight, character, enemies, prev_space, prev_down, ignore_return
+    global knight, character, skeletons, prev_space, prev_down, ignore_return, scorenum, max_skeletons
 
     knight = Knight("Knight_1/Idle.png", 350, 590, 128, 128, "Knight_1")
     knight.resize(200, 200)
@@ -40,13 +41,14 @@ def game_reset():
     prev_space = False
     prev_down = False
     ignore_return = False
+    scorenum = 0
 
-    enemies = []
-    for i in range(3):
-        enemy = Enemy("Skeleton_Spearman/Idle.png", -200, 590, 128, 128)
-        enemy.spawn()
-        enemy.resize(200, 200)
-        enemies.append(enemy)
+    skeletons = []
+    for i in range(max_skeletons):
+        skelton = Enemy("Skeleton_Spearman/Idle.png", -200, 590, 128, 128)
+        skeleton.spawn()
+        skeleton.resize(200, 200)
+        skeletons.append(skeleton)
 
 is_home = True
 
@@ -58,6 +60,13 @@ for i in range(5):
     heart = StillImage(xheart, 0, 45, 45, "hearts.png")
     hearts.append(heart)
     xheart += 50
+
+scorenum = 0
+scorenumtxt = font.SysFont("Arial", 45)
+scorepic = StillImage(0, 10, 140, 140, "score.png")
+
+spawn_cooldown = 30000
+last_spawn_time = time.get_ticks()
 
 while True:
 
@@ -79,6 +88,17 @@ while True:
                 ignore_return = False
             character = select_character(window, ignore_return)
         else:
+
+            current_time = time.get_ticks()
+            print(current_time)
+
+            if current_time - last_spawn_time > 30000:
+                last_spawn_time = current_time
+                max_skeletons += 1
+                skelton = Enemy("Skeleton_Spearman/Idle.png", -200, 590, 128, 128)
+                skelton.spawn()
+                skelton.resize(200, 200)
+                skeletons.append(skelton)
 
             moved = False
 
@@ -113,17 +133,18 @@ while True:
 
                 if knight.attacking == True:
 
-                    for enemy in enemies:
-                        if enemy.rect.x < knight.rect.x:
-                            distance = knight.rect.x - enemy.rect.x
+                    for skeleton in skeletons:
+                        if skeleton.rect.x < knight.rect.x:
+                            distance = knight.rect.x - skeleton.rect.x
                         else:
-                            distance = enemy.rect.x - knight.rect.x
+                            distance = skeleton.rect.x - knight.rect.x
 
-                        if knight.rect.colliderect(enemy.rect) >= distance:
-
-                            enemy.hp -= 10 
-                            if enemy.hp <= 0:
-                                enemy.die()
+                        if knight.rect.colliderect(skeleton.rect) >= distance:
+                            
+                            skeleton.hp -= 20 
+                            if skeleton.hp <= 0:
+                                scorenum += 100
+                                skeleton.die()
 
             prev_space = current_space
 
@@ -150,28 +171,31 @@ while True:
             background.draw(window)
             knight.draw(window)
             lives_image.draw(window)
+            scorepic.draw(window)
+            font.rendered_score = scorenumtxt.render(f"{scorenum}", True, (3, 41, 153))
+            window.blit(font.rendered_score, (135, 53 ))
             
             for heart in hearts:
                 heart.draw(window)
             
-            for enemy in enemies:
+            for skeleton in skeletons:
                 
-                enemy.update()
-                enemy.draw(window)
-                enemy.resize(200, 200)
+                skeleton.update()
+                skeleton.draw(window)
+                skeleton.resize(200, 200)
 
-                if enemy.rect.x < knight.rect.x:
-                    distance = (knight.rect.x - enemy.rect.x) - 30
+                if skeleton.rect.x < knight.rect.x:
+                    distance = (knight.rect.x - skeleton.rect.x) - 30
                 else:
-                    distance = enemy.rect.x - knight.rect.x
+                    distance = skeleton.rect.x - knight.rect.x
 
                 if distance <= 60:
             
-                    if not getattr(enemy, 'attacking', False):
-                        enemy.attack()
-                        enemy.resize(200, 200)
+                    if not getattr(skeleton, 'attacking', False):
+                        skeleton.attack()
+                        skeleton.resize(200, 200)
 
-                    if getattr(enemy, 'attacking', False) and not getattr(enemy, 'play_once_done', False):
+                    if getattr(skeleton, 'attacking', False) and not getattr(skeleton, 'play_once_done', False):
                         if not getattr(knight, 'took_damage', False) and not getattr(knight, 'dead', False):
                             knight.hp = max(0, knight.hp - 5)
                             knight.took_damage = True
@@ -187,11 +211,11 @@ while True:
                                 if lives == 0:
                                     knight.die(character)
 
-                    if getattr(enemy, 'play_once_done', False):
+                    if getattr(skeleton, 'play_once_done', False):
                         knight.took_damage = False
                 
                 else:
-                    enemy.move(knight.rect.x)
+                    skeleton.move(knight.rect.x)
 
             if getattr(knight, 'dead', False) and getattr(knight, 'play_once_done', False):
                 is_home = None
@@ -201,3 +225,4 @@ while True:
 
     display.update()
     clock.tick(60)
+
