@@ -4,7 +4,7 @@ from AnimatedSprite import *
 from StillImage import StillImage
 from KnightMovement import Knight
 from CharacterSelect import *
-from StartScreen import *
+import StartScreen
 from EnemyMovement import *
 
 init()
@@ -33,7 +33,7 @@ for i in range(max_skeletons):
 background = StillImage(0, 0, 800, 800, "background1.png")
 
 def game_reset():
-    global knight, character, skeletons, prev_space, prev_down, ignore_return, scorenum, max_skeletons
+    global knight, character, skeletons, prev_space, prev_down, ignore_return, scorenum, max_skeletons, hearts, lives
 
     knight = Knight("Knight_1/Idle.png", 350, 590, 128, 128, "Knight_1")
     knight.resize(200, 200)
@@ -44,11 +44,20 @@ def game_reset():
     scorenum = 0
 
     skeletons = []
+    max_skeletons = 3
     for i in range(max_skeletons):
         skelton = Enemy("Skeleton_Spearman/Idle.png", -200, 590, 128, 128)
-        skeleton.spawn()
-        skeleton.resize(200, 200)
-        skeletons.append(skeleton)
+        skelton.spawn()
+        skelton.resize(200, 200)
+        skeletons.append(skelton)
+
+    lives = 5
+    hearts = []
+    xheart = 135
+    for i in range(5):
+        heart = StillImage(xheart, 0, 45, 45, "hearts.png")
+        hearts.append(heart)
+        xheart += 50
 
 is_home = True
 
@@ -66,7 +75,7 @@ scorenumtxt = font.SysFont("Arial", 45)
 scorepic = StillImage(0, 10, 140, 140, "score.png")
 
 spawn_cooldown = 30000
-last_spawn_time = time.get_ticks()
+last_spawn_time = time.get_ticks
 
 while True:
 
@@ -74,10 +83,10 @@ while True:
         if e.type == QUIT:
             exit()
 
-    if is_home == True:
+    if is_home == True or StartScreen.instructions_open == True:
 
-        is_home = start_screen(window)
-        if is_home == False:
+        is_home = StartScreen.start_screen(window)
+        if is_home == False and StartScreen.instructions_open == False:
             ignore_return = True
         
     else:
@@ -90,7 +99,6 @@ while True:
         else:
 
             current_time = time.get_ticks()
-            print(current_time)
 
             if current_time - last_spawn_time > 30000:
                 last_spawn_time = current_time
@@ -218,8 +226,11 @@ while True:
                     skeleton.move(knight.rect.x)
 
             if getattr(knight, 'dead', False) and getattr(knight, 'play_once_done', False):
+                ignore_return = True
                 is_home = None
-                is_home = game_over(window)
+                StartScreen.ignore_return_local = True
+                StartScreen.ignore_until = time.get_ticks() + 300
+                is_home = StartScreen.game_over(window)
                 if is_home != None and not is_home:
                     game_reset()
 
