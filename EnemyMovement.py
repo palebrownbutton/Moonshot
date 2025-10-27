@@ -72,19 +72,6 @@ class Enemy(AnimatedSprite):
         if getattr(self, 'hp', 0) <= 0 and not getattr(self, 'dead', False):
             self.die()
 
-        if getattr(self, 'dead', False) and getattr(self, 'play_once_done', False):
-            self.dead = False
-            self.play_once = False
-            self.play_once_done = False
-
-            self.hp = 50
-            self.spawn()
-
-            try:
-                self.change_animation("Skeleton_Spearman/Run.png", 128, 128)
-            except Exception:
-                pass
-
         if getattr(self, 'attacking', False) and getattr(self, 'play_once_done', False):
             self.attacking = False
             self.play_once = False
@@ -94,10 +81,11 @@ class Enemy(AnimatedSprite):
             except Exception:
                 pass
 
-        if self.dead:
-            self.death_timer += 1
-            if self.death_timer > 120:
-                self.spawn()
+        if getattr(self, 'dead', False) and getattr(self, 'play_once_done', False):
+
+            self.play_once = False
+            self.play_once_done = False
+            self.remove = True
             return
 
     def die(self):

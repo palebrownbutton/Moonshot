@@ -30,6 +30,11 @@ for i in range(max_skeletons):
     skelton.resize(200, 200)
     skeletons.append(skelton)
 
+archers = []
+max_archers = 2
+for i in range(max_archers):
+    pass
+
 background = StillImage(0, 0, 800, 800, "background1.png")
 
 def game_reset():
@@ -74,8 +79,8 @@ scorenum = 0
 scorenumtxt = font.SysFont("Arial", 45)
 scorepic = StillImage(0, 10, 140, 140, "score.png")
 
-spawn_cooldown = 30000
-last_spawn_time = time.get_ticks
+spawn_cooldown = 20000
+last_spawn_time = time.get_ticks()
 
 while True:
 
@@ -100,13 +105,19 @@ while True:
 
             current_time = time.get_ticks()
 
-            if current_time - last_spawn_time > 30000:
+            if current_time - last_spawn_time > 20000:
                 last_spawn_time = current_time
                 max_skeletons += 1
                 skelton = Enemy("Skeleton_Spearman/Idle.png", -200, 590, 128, 128)
                 skelton.spawn()
                 skelton.resize(200, 200)
                 skeletons.append(skelton)
+
+            if current_time - last_spawn_time > 90000:
+
+                pass
+                # once we get the spaceships to work add spereate section here
+                # however i'm now thinking that maybe archer skeltons would be cooler
 
             moved = False
 
@@ -153,6 +164,7 @@ while True:
                             if skeleton.hp <= 0:
                                 scorenum += 100
                                 skeleton.die()
+                                skeletons.remove(skeleton)
 
             prev_space = current_space
 
@@ -223,7 +235,7 @@ while True:
                         knight.took_damage = False
                 
                 else:
-                    skeleton.move(knight.rect.x)
+                    skeleton.move(knight.rect.centerx)
 
             if getattr(knight, 'dead', False) and getattr(knight, 'play_once_done', False):
                 ignore_return = True
@@ -233,6 +245,13 @@ while True:
                 is_home = StartScreen.game_over(window)
                 if is_home != None and not is_home:
                     game_reset()
+            
+            if len(skeletons) == 0:
+                for i in range(max_skeletons - 2):
+                    skelton = Enemy("Skeleton_Spearman/Idle.png", -200, 590, 128, 128)
+                    skelton.spawn()
+                    skelton.resize(200, 200)
+                    skeletons.append(skelton)
 
     display.update()
     clock.tick(60)
