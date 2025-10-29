@@ -25,15 +25,18 @@ ignore_return = False
 skeletons = []
 max_skeletons = 3
 for i in range(max_skeletons):
-    skelton = Enemy("Skeleton_Spearman/Idle.png", -200, 590, 128, 128)
-    skelton.spawn()
+    skelton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
+    skelton.spawn("Skeleton_Spearman")
     skelton.resize(200, 200)
     skeletons.append(skelton)
 
 archers = []
 max_archers = 2
 for i in range(max_archers):
-    pass
+    archer = Archer("Skeleton_Archer/Idle.png", -200, 590, 128, 128, "Skeleton_Archer")
+    archer.spawn("Skeleton_Archer")
+    archer.resize(200, 200)
+    archers.append(archer)
 
 background = StillImage(0, 0, 800, 800, "background1.png")
 
@@ -51,10 +54,18 @@ def game_reset():
     skeletons = []
     max_skeletons = 3
     for i in range(max_skeletons):
-        skelton = Enemy("Skeleton_Spearman/Idle.png", -200, 590, 128, 128)
-        skelton.spawn()
+        skelton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
+        skelton.spawn("Skeleton_Spearman")
         skelton.resize(200, 200)
         skeletons.append(skelton)
+
+    archers = []
+    max_archers = 2
+    for i in range(max_archers):
+        archer = Archer("Skeleton_Archer/Idle.png", -200, 590, 128, 128, "Skeleton_Archer")
+        archer.spawn("Skeleton_Archer")
+        archer.resize(200, 200)
+        archers.append(archer)
 
     lives = 5
     hearts = []
@@ -108,8 +119,8 @@ while True:
             if current_time - last_spawn_time > 20000:
                 last_spawn_time = current_time
                 max_skeletons += 1
-                skelton = Enemy("Skeleton_Spearman/Idle.png", -200, 590, 128, 128)
-                skelton.spawn()
+                skelton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
+                skelton.spawn("Skeleton_Spearman")
                 skelton.resize(200, 200)
                 skeletons.append(skelton)
 
@@ -163,7 +174,7 @@ while True:
                             skeleton.hp -= 20 
                             if skeleton.hp <= 0:
                                 scorenum += 100
-                                skeleton.die()
+                                skeleton.die("Skeleton_Spearman")
                                 skeletons.remove(skeleton)
 
             prev_space = current_space
@@ -189,6 +200,14 @@ while True:
             knight.update()
             window.fill((0, 0, 0))
             background.draw(window)
+          
+            # Will be moved later to after 90000 miliseconds if 
+            for archer in archers:
+                archer.update("Skeleton_Archer")
+                archer.move(knight.rect.centerx, "Skeleton_Archer")
+                archer.draw(window)
+                archer.resize(200, 200)
+
             knight.draw(window)
             lives_image.draw(window)
             scorepic.draw(window)
@@ -200,7 +219,7 @@ while True:
             
             for skeleton in skeletons:
                 
-                skeleton.update()
+                skeleton.update("Skeleton_Spearman")
                 skeleton.draw(window)
                 skeleton.resize(200, 200)
 
@@ -212,7 +231,7 @@ while True:
                 if distance <= 60:
             
                     if not getattr(skeleton, 'attacking', False):
-                        skeleton.attack()
+                        skeleton.attack("Skeleton_Spearman")
                         skeleton.resize(200, 200)
 
                     if getattr(skeleton, 'attacking', False) and not getattr(skeleton, 'play_once_done', False):
@@ -235,7 +254,7 @@ while True:
                         knight.took_damage = False
                 
                 else:
-                    skeleton.move(knight.rect.centerx)
+                    skeleton.move(knight.rect.centerx, "Skeleton_Spearman")
 
             if getattr(knight, 'dead', False) and getattr(knight, 'play_once_done', False):
                 ignore_return = True
@@ -248,8 +267,8 @@ while True:
             
             if len(skeletons) == 0:
                 for i in range(max_skeletons - 2):
-                    skelton = Enemy("Skeleton_Spearman/Idle.png", -200, 590, 128, 128)
-                    skelton.spawn()
+                    skelton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
+                    skelton.spawn("Skeleton_Spearman")
                     skelton.resize(200, 200)
                     skeletons.append(skelton)
 

@@ -28,7 +28,7 @@ instructions_button = Buttons(100, 380, 600, 600, "instructions_button.png", "in
 background = StillImage(0, 0, 800, 800, "select_background.png")
 
 text1 = font.SysFont("Arial", 50)
-font.rendered_text = text1.render("Welcome to my game!", True, (255, 255, 255))
+font.rendered_text = text1.render("Welcome to Bones and Blades!", True, (255, 255, 255))
 text2 = font.SysFont("Arial", 30)
 font.rendered_subtext = text2.render("By Simona", True, (255, 255, 255))
 
@@ -49,7 +49,7 @@ def start_screen(window):
         background.draw(window)
         play.draw(window, is_selected)
         instructions_button.draw(window, is_selected)
-        window.blit(font.rendered_text, (200, 100))
+        window.blit(font.rendered_text, (120, 100))
         window.blit(font.rendered_subtext, (340, 160))
         return True
 
@@ -57,7 +57,7 @@ def start_screen(window):
         background.draw(window)
         play.draw(window, is_selected)
         instructions_button.draw(window, is_selected)
-        window.blit(font.rendered_text, (200, 100))
+        window.blit(font.rendered_text, (120, 100))
         window.blit(font.rendered_subtext, (340, 160))
         if pressed[K_RETURN]:
             return True
@@ -70,7 +70,7 @@ def start_screen(window):
         play.draw(window, is_selected)
         instructions_button.draw(window, is_selected)
         
-        window.blit(font.rendered_text, (200, 100))
+        window.blit(font.rendered_text, (120, 100))
         window.blit(font.rendered_subtext, (340, 160))
 
         pressed = key.get_pressed()
