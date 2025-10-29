@@ -38,10 +38,13 @@ for i in range(max_archers):
     archer.resize(200, 200)
     archers.append(archer)
 
+# control when archers become active/on-screen (spawned but stay inactive until timer)
+archers_active = False
+
 background = StillImage(0, 0, 800, 800, "background1.png")
 
 def game_reset():
-    global knight, character, skeletons, prev_space, prev_down, ignore_return, scorenum, max_skeletons, hearts, lives
+    global knight, character, skeletons, prev_space, prev_down, ignore_return, scorenum, max_skeletons, hearts, lives, archers, max_archers, archers_active
 
     knight = Knight("Knight_1/Idle.png", 350, 590, 128, 128, "Knight_1")
     knight.resize(200, 200)
@@ -67,6 +70,15 @@ def game_reset():
         archer.resize(200, 200)
         archers.append(archer)
 
+    # clear any existing arrows when resetting the game so bullets don't persist
+    try:
+        arrows.clear()
+    except Exception:
+        pass
+
+    # archers should be inactive immediately after reset until timer fires again
+    archers_active = False
+
     lives = 5
     hearts = []
     xheart = 135
@@ -90,8 +102,9 @@ scorenum = 0
 scorenumtxt = font.SysFont("Arial", 45)
 scorepic = StillImage(0, 10, 140, 140, "score.png")
 
-spawn_cooldown = 20000
 last_spawn_time = time.get_ticks()
+
+shoot_time = time.get_ticks()
 
 while True:
 
@@ -115,20 +128,19 @@ while True:
         else:
 
             current_time = time.get_ticks()
+            print(current_time)
 
             if current_time - last_spawn_time > 20000:
                 last_spawn_time = current_time
                 max_skeletons += 1
-                skelton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
-                skelton.spawn("Skeleton_Spearman")
-                skelton.resize(200, 200)
-                skeletons.append(skelton)
+                for i in range(max_skeletons - 1):
+                    skelton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
+                    skelton.spawn("Skeleton_Spearman")
+                    skelton.resize(200, 200)
+                    skeletons.append(skelton)
 
             if current_time - last_spawn_time > 90000:
-
-                pass
-                # once we get the spaceships to work add spereate section here
-                # however i'm now thinking that maybe archer skeltons would be cooler
+                archers_active = True
 
             moved = False
 
@@ -201,19 +213,65 @@ while True:
             window.fill((0, 0, 0))
             background.draw(window)
           
-            # Will be moved later to after 90000 miliseconds if 
-            for archer in archers:
-                archer.update("Skeleton_Archer")
-                archer.move(knight.rect.centerx, "Skeleton_Archer")
-                archer.draw(window)
-                archer.resize(200, 200)
+            if archers_active:
+                for archer in archers:
+                    archer.update("Skeleton_Archer")
+                    archer.move(knight.rect.centerx, "Skeleton_Archer")
+                    archer.draw(window)
+                    archer.resize(200, 200)
+
+                    shoot_current_time = time.get_ticks()
+                    if getattr(archer, 'shoot_cooldown', 0) == 0:
+                        archer.shoot_cooldown = 0
+                    if shoot_current_time - archer.shoot_cooldown > 3000:
+                        if abs(archer.rect.x - knight.rect.centerx) <= 350:
+                            archer.attack("Skeleton_Archer")
+                            archer.shoot_cooldown = shoot_current_time
 
             knight.draw(window)
             lives_image.draw(window)
             scorepic.draw(window)
             font.rendered_score = scorenumtxt.render(f"{scorenum}", True, (3, 41, 153))
             window.blit(font.rendered_score, (135, 53 ))
-            
+
+            for arrow in arrows:
+                prev_x = arrow.rect.x
+                removed = arrow.update()
+                try:
+                    collided = arrow.rect.inflate(20, 20).colliderect(knight.rect)
+                    tunneled = (prev_x > knight.rect.right and arrow.rect.x < knight.rect.left) or (prev_x < knight.rect.left and arrow.rect.x > knight.rect.right)
+                    if collided or tunneled:
+                        if not getattr(knight, 'dead', False):
+                            knight.hp = max(0, knight.hp - 10)
+                            try:
+                                knight.change_animation(f"{character}/Hurt.png", 128, 128, play_once=True)
+                            except Exception:
+                                pass
+                            knight.resize(200, 200)
+                            if knight.hp <= 0:
+                                lives -= 1
+                                try:
+                                    hearts.remove(hearts[-1])
+                                except Exception:
+                                    pass
+                                knight.hp = 100
+                                if lives == 0:
+                                    knight.die(character)
+                        try:
+                            arrows.remove(arrow)
+                        except ValueError:
+                            pass
+                        continue
+                except Exception:
+                    pass
+
+                arrow.draw(window)
+                if removed:
+                    try:
+                        arrows.remove(arrow)
+                    except ValueError:
+                        pass
+
             for heart in hearts:
                 heart.draw(window)
             

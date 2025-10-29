@@ -3,6 +3,9 @@ from AnimatedSprite import *
 from StillImage import StillImage
 import random
 
+arrows = []
+can_shoot = False
+
 class Enemy(AnimatedSprite):
 
     def __init__(self, sprite_sheet, x, y, w, h, enemy_type):
@@ -135,13 +138,16 @@ class Archer(Enemy):
 
     def __init__(self, sprite_sheet, x, y, w, h, enemy_type):
         super().__init__(sprite_sheet, x, y, w, h, enemy_type)
+
         self.shoot_cooldown = 0
 
     def move(self, player_x, enemy_type):
+        global can_shoot
+
         if getattr(self, 'attacking', False):
             return
 
-        if self.rect.x < -75 or self.rect.x < player_x - 320:
+        if self.rect.x < -75 or self.rect.x < player_x - 350:
             self.rect.x += 2
             try:
                 self.change_animation(f"{enemy_type}/Run.png", 128, 128)
@@ -149,10 +155,71 @@ class Archer(Enemy):
                 pass
             return
 
-        if self.rect.x > 800 or self.rect.x > player_x + 320:
-            self.rect.x -= 2
+        elif self.rect.x > 800 or self.rect.x > player_x + 350:
+            self.rect.x -= 1.3
             try:
                 self.change_animation(f"{enemy_type}/Run.png", 128, 128)
             except Exception:
                 pass
             return
+        
+        if self.direction == "right" and not getattr(self, "attacking", False):
+            if player_x + 100 < self.rect.x:
+                self.direction = "left"
+                self.rect.x -= 2
+                if not getattr(self, 'attacking', False):
+                    try:
+                        self.change_animation(f"{enemy_type}/Run.png", 128, 128)
+                    except Exception:
+                        pass
+            else:
+                self.rect.x += 2
+                if not getattr(self, 'attacking', False):
+                    try:
+                        self.change_animation(f"{enemy_type}/Run.png", 128, 128)
+                    except Exception:
+                        pass
+        
+        if self.direction == "left" and not getattr(self, "attacking", False):
+
+            if player_x - 100 > self.rect.x:
+                self.direction = "right"
+                self.rect.x += 2
+                if not getattr(self, 'attacking', False):
+                    try:
+                        self.change_animation(f"{enemy_type}/Run.png", 128, 128)
+                    except Exception:
+                        pass
+            else:
+                self.rect.x -= 2
+                if not getattr(self, 'attacking', False):
+                    try:
+                        self.change_animation(f"{enemy_type}/Run.png", 128, 128)
+                    except Exception:
+                        pass
+        
+    def attack(self, enemy_type):
+        global arrows
+
+        self.attacking = True
+        try:
+            self.change_animation(f"{enemy_type}/Shot_1.png", 128, 128, play_once=True)
+        except Exception:
+            pass
+
+        arrow = Arrows(self.rect.x + 50, self.rect.y + 90, 83, 100, "arrow.png", direction=self.direction)
+        arrows.append(arrow)
+
+class Arrows(StillImage):
+
+    def __init__(self, x, y, w, h, filename, direction='right'):
+        super().__init__(x, y, w, h, filename)
+
+        self.direction = direction
+
+    def update(self):
+        if getattr(self, 'direction', 'right') == "left":
+            self.rect.x -= 10
+        else:
+            self.rect.x += 10
+        return self.rect.right < 0 or self.rect.left > 800
