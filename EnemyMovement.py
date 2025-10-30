@@ -8,10 +8,10 @@ can_shoot = False
 
 class Enemy(AnimatedSprite):
 
-    def __init__(self, sprite_sheet, x, y, w, h, enemy_type):
+    def __init__(self, sprite_sheet, x, y, w, h, enemy_type, hp):
         super().__init__(sprite_sheet, x, y, w, h)
 
-        self.hp = 50
+        self.hp = hp
         self.strenght = 5
         self.dead = False
 
@@ -79,8 +79,8 @@ class Enemy(AnimatedSprite):
 
 class Skeleton(Enemy):
 
-    def __init__(self, sprite_sheet, x, y, w, h, enemy_type):
-        super().__init__(sprite_sheet, x, y, w, h, enemy_type)
+    def __init__(self, sprite_sheet, x, y, w, h, enemy_type, hp=50):
+        super().__init__(sprite_sheet, x, y, w, h, enemy_type, hp)
 
     def move(self, player_x, enemy_type):
 
@@ -136,8 +136,8 @@ class Skeleton(Enemy):
 
 class Archer(Enemy):
 
-    def __init__(self, sprite_sheet, x, y, w, h, enemy_type):
-        super().__init__(sprite_sheet, x, y, w, h, enemy_type)
+    def __init__(self, sprite_sheet, x, y, w, h, enemy_type, hp=75):
+        super().__init__(sprite_sheet, x, y, w, h, enemy_type, hp)
 
         self.shoot_cooldown = 0
 

@@ -38,7 +38,6 @@ for i in range(max_archers):
     archer.resize(200, 200)
     archers.append(archer)
 
-# control when archers become active/on-screen (spawned but stay inactive until timer)
 archers_active = False
 
 background = StillImage(0, 0, 800, 800, "background1.png")
@@ -76,7 +75,6 @@ def game_reset():
     except Exception:
         pass
 
-    # archers should be inactive immediately after reset until timer fires again
     archers_active = False
 
     lives = 5
@@ -103,8 +101,7 @@ scorenumtxt = font.SysFont("Arial", 45)
 scorepic = StillImage(0, 10, 140, 140, "score.png")
 
 last_spawn_time = time.get_ticks()
-
-shoot_time = time.get_ticks()
+archer_spawn_time = time.get_ticks()
 
 while True:
 
@@ -128,19 +125,33 @@ while True:
         else:
 
             current_time = time.get_ticks()
-            print(current_time)
 
-            if current_time - last_spawn_time > 20000:
+            if current_time - last_spawn_time > 20000 and max_skeletons <= 6:
                 last_spawn_time = current_time
                 max_skeletons += 1
                 for i in range(max_skeletons - 1):
-                    skelton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
-                    skelton.spawn("Skeleton_Spearman")
-                    skelton.resize(200, 200)
-                    skeletons.append(skelton)
+                    if max_skeletons <= 6:
+                        skelton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
+                        skelton.spawn("Skeleton_Spearman")
+                        skelton.resize(200, 200)
+                        skeletons.append(skelton)
+                    else:
+                        break
 
-            if current_time - last_spawn_time > 90000:
+            if current_time - last_spawn_time > 10000:
                 archers_active = True
+            
+                if current_time - archer_spawn_time > 45000 and max_archers <= 4:
+                    archer_spawn_time = current_time
+                    max_archers += 1
+                    for i in range(max_archers - 1):
+                        if max_archers <= 4:
+                            archer = Archer("Skeleton_Archer/Idle.png", -200, 590, 128, 128, "Archer_Spearman")
+                            archer.spawn("Skeleton_Archer")
+                            archer.resize(200, 200)
+                            archers.append(archer)
+                        else:
+                            break
 
             moved = False
 
@@ -227,6 +238,19 @@ while True:
                         if abs(archer.rect.x - knight.rect.centerx) <= 350:
                             archer.attack("Skeleton_Archer")
                             archer.shoot_cooldown = shoot_current_time
+                
+                    if archer.rect.x < knight.rect.x:
+                        distance = knight.rect.x - archer.rect.x
+                    else:
+                        distance = archer.rect.x - knight.rect.x
+
+                    if knight.rect.colliderect(archer.rect) >= distance:
+                        
+                        archer.hp -= 20 
+                        if archer.hp <= 0:
+                            scorenum += 250
+                            archer.die("Skeleton_Archer")
+                            archers.remove(archer)
 
             knight.draw(window)
             lives_image.draw(window)
