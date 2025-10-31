@@ -44,7 +44,11 @@ background = StillImage(0, 0, 800, 800, "background1.png")
 background_switched = False
 
 def game_reset():
-    global knight, character, skeletons, prev_space, prev_down, ignore_return, scorenum, max_skeletons, live_skeletons,  hearts, lives, archers, max_archers, archers_active
+    global knight, character, skeletons, prev_space, prev_down, ignore_return, scorenum, max_skeletons, live_skeletons,  hearts, lives, archers, max_archers, archers_active, background, background_switched, game_start_time
+
+    background = StillImage(0, 0, 800, 800, "background1.png")
+    background_switched = False
+    game_start_time = None
 
     knight = Knight("Knight_1/Idle.png", 350, 590, 128, 128, "Knight_1")
     knight.resize(200, 200)
@@ -74,26 +78,33 @@ def game_reset():
     except Exception:
         pass
 
+    try:
+        collectibles.clear()
+    except Exception:
+        pass
+
     archers_active = False
 
     lives = 5
     hearts = []
-    xheart = 135
+    HEART_X_BASE = 135
+    HEART_SPACING = 50
     for i in range(5):
-        heart = StillImage(xheart, 0, 45, 45, "hearts.png")
+        heart = StillImage(HEART_X_BASE + i * HEART_SPACING, 0, 45, 45, "hearts.png")
         hearts.append(heart)
-        xheart += 50
 
 is_home = True
 
 lives_image = StillImage(5, -40, 128, 128, "lives.png")
 lives = 5
 hearts = []
-xheart = 135
+HEART_X_BASE = 135
+HEART_SPACING = 50
 for i in range(5):
-    heart = StillImage(xheart, 0, 45, 45, "hearts.png")
+    heart = StillImage(HEART_X_BASE + i * HEART_SPACING, 0, 45, 45, "hearts.png")
     hearts.append(heart)
-    xheart += 50
+
+collectibles = []
 
 scorenum = 0
 scorenumtxt = font.SysFont("Arial", 45)
@@ -102,6 +113,7 @@ scorepic = StillImage(0, 10, 140, 140, "score.png")
 last_spawn_time = time.get_ticks()
 archer_spawn_time = time.get_ticks()
 game_start_time = None
+heart_spawn_time = time.get_ticks()
 
 while True:
 
@@ -148,6 +160,14 @@ while True:
 
             current_time = time.get_ticks()
 
+            if current_time - heart_spawn_time > 35000 and len(hearts) < 5:
+                heart_spawn_time = current_time
+                new_heart = StillImage(random.randint(-117, 710), random.choice([600, 715]), 45, 45, "hearts.png")
+                collectibles.append({
+                    'obj': new_heart,
+                    'spawn': current_time
+                })
+
             if current_time - last_spawn_time > 20000 and len(skeletons) <= 6:
                 last_spawn_time = current_time
                 live_skeletons += 1
@@ -160,7 +180,7 @@ while True:
                     else:
                         break
 
-            if game_start_time is not None and current_time - game_start_time > 30000:
+            if (game_start_time is not None and current_time - game_start_time > 60000) or scorenum >= 1000:
 
                 if not background_switched:
                     background = StillImage(0, 0, 800, 800, "background2.png")
@@ -270,13 +290,50 @@ while True:
                     else:
                         distance = archer.rect.x - knight.rect.x
 
-                    if knight.rect.colliderect(archer.rect) >= distance:
+                    if knight.rect.colliderect(archer.rect) >= distance and getattr(knight, 'attacking', True):
                         
                         archer.hp -= 20 
                         if archer.hp <= 0:
                             scorenum += 250
                             archer.die("Skeleton_Archer")
                             archers.remove(archer)
+
+            COLLECTIBLE_LIFETIME = 10000 
+            for item in collectibles[:]:
+                c = item['obj']
+                spawn = item.get('spawn', 0)
+                tick = time.get_ticks() // 500 % 2
+                if tick == 0:
+                    c.draw(window)
+                else:
+                    ghost_image = c.image.copy()
+                    ghost_image.set_alpha(100)
+                    window.blit(ghost_image, (c.rect.x, c.rect.y))
+
+                if c.rect.x < knight.rect.x:
+                    distance = knight.rect.x - c.rect.x
+                else:
+                    distance = c.rect.x - knight.rect.x
+
+                if knight.rect.colliderect(c.rect) and distance <= 40:
+                    if c.rect.x == 715 and getattr(knight, 'on_ground', True):
+                        continue
+                    else:
+                        if len(hearts) < 5:
+                            new_x = HEART_X_BASE + len(hearts) * HEART_SPACING
+                            heart = StillImage(new_x, 0, 45, 45, "hearts.png")
+                            hearts.append(heart)
+                    try:
+                        collectibles.remove(item)
+                    except ValueError:
+                        pass
+                    continue
+
+                if current_time - spawn > COLLECTIBLE_LIFETIME:
+                    try:
+                        collectibles.remove(item)
+                    except ValueError:
+                        pass
 
             knight.draw(window)
             lives_image.draw(window)
@@ -303,7 +360,6 @@ while True:
                         if not blocked:
 
                             knight.hp = max(0, knight.hp - 5)
-                            print(knight.hp)
                             knight.took_damage = True
                             try:
                                 knight.change_animation(f"{character}/Hurt.png", 128, 128, play_once=True)
@@ -368,7 +424,6 @@ while True:
                             if not blocked:
 
                                 knight.hp = max(0, knight.hp - 5)
-                                print(knight.hp)
                                 knight.took_damage = True
                                 try:
                                     knight.change_animation(f"{character}/Hurt.png", 128, 128, play_once=True)
@@ -401,7 +456,7 @@ while True:
                 is_home = StartScreen.game_over(window)
                 if is_home != None and not is_home:
                     game_reset()
-            
+
             if len(skeletons) == 0:
                 live_skeletons = max_skeletons
                 for i in range(max_skeletons):
