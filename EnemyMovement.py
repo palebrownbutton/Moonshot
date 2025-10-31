@@ -16,6 +16,8 @@ class Enemy(AnimatedSprite):
         self.dead = False
 
     def spawn(self, enemy_type):
+
+        self.resize(200, 200)
         
         side = random.choice(["left", "right"]) 
         if side == "left":
