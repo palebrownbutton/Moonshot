@@ -1,5 +1,6 @@
 from pygame import *
 import random
+import math
 from AnimatedSprite import *
 from StillImage import StillImage
 from KnightMovement import Knight
@@ -9,9 +10,12 @@ from EnemyMovement import *
 
 init()
 font.init()
+mixer.init()
 
 window = display.set_mode((800, 800))
 clock = time.Clock()
+
+mixer.music.load("game_play.mp3")
 
 knight = Knight("Knight_1/Idle.png", 350, 590, 128, 128, "Knight_1")
 knight.resize(200, 200)
@@ -42,9 +46,12 @@ healthbars = []
 for skeleton in skeletons:
     healthbar = Healthbars(skeleton.rect.x + 75, skeleton.rect.y + 90, 50, 7)
     healthbars.append(healthbar)
-for arcehr in archers:
+for archer in archers:
     healthbar = Healthbars(archer.rect.x + 75, archer.rect.y + 90, 50, 7)
     healthbars.append(healthbar)
+
+boss_skeleton = None
+boss_spawned = False
 
 archers_active = False
 
@@ -179,7 +186,12 @@ while True:
             if ignore_return and not pressed_any[K_RETURN]:
                 ignore_return = False
             character = select_character(window, ignore_return)
+
         else:
+
+            if not mixer.music.get_busy():
+                mixer.music.set_volume(0.3)
+                mixer.music.play(-1)
 
             current_time = time.get_ticks()
 
@@ -202,8 +214,16 @@ while True:
                         skeletons.append(skeleton)
                     else:
                         break
+            
+            if not boss_spawned and game_start_time is not None and current_time - game_start_time > 5000:
+                boss_skeleton = BossSkeleton("Skeleton_Spearman/Idle.png", random.randint(-600, -200), 290, 256, 256, "Skeleton_Spearman")
+                boss_skeleton.spawn("Skeleton_Spearman")
+                boss_skeleton.resize(500, 500)
+                boss_skeleton.hp = 300 
+                healthbar = Healthbars(boss_skeleton.rect.x + 150, boss_skeleton.rect.y + 200, 200, 20)
+                boss_spawned = True
 
-            if (game_start_time is not None and current_time - game_start_time > 60000) or scorenum >= 1000:
+            if (game_start_time is not None and current_time - game_start_time > 60000) or scorenum >= 1000 and boss_spawned == False:
 
                 if not background_switched:
                     background = StillImage(0, 0, 800, 800, "background2.png")
@@ -321,6 +341,63 @@ while True:
                             archer.die("Skeleton_Archer")
                             archers.remove(archer)
 
+            if boss_skeleton is not None:
+
+                if not getattr(boss_skeleton, 'music_switched', False):
+                    mixer.music.stop()
+                    mixer.music.load("boss_fight.mp3")
+                    mixer.music.set_volume(0.3)
+                    mixer.music.play(-1)
+                    boss_skeleton.music_switched = True
+
+                boss_skeleton.update("Skeleton_Spearman")
+                boss_skeleton.draw(window)
+                boss_skeleton.move(knight.rect.centerx)
+
+                if boss_skeleton.direction == "right":
+                    boss_front_x = boss_skeleton.rect.right
+                else:
+                    boss_front_x = boss_skeleton.rect.left
+
+                distance = abs(knight.rect.centerx - boss_front_x)
+
+                if distance <= 30:
+            
+                    if not getattr(boss_skeleton, 'attacking', False):
+                        boss_skeleton.attack()
+
+                    if getattr(boss_skeleton, 'attacking', False) and not getattr(boss_skeleton, 'play_once_done', False):
+                        if not getattr(knight, 'took_damage', False) and not getattr(knight, 'dead', False):
+
+                            blocked = False
+                            try:
+                                if getattr(knight, 'defending', False):
+                                    if getattr(knight, 'direction', None) != getattr(boss_skeleton, 'direction', None):
+                                        blocked = True
+                            except Exception:
+                                blocked = False
+
+                            if not blocked:
+
+                                knight.hp = max(0, knight.hp - 20)
+                                knight.took_damage = True
+                                try:
+                                    knight.change_animation(f"{character}/Hurt.png", 128, 128, play_once=True)
+                                except Exception:
+                                    pass
+                                knight.resize(200, 200)
+                                if knight.hp <= 0:
+                                    lives -= 1
+                                    try:
+                                        hearts.remove(hearts[-1])
+                                    except Exception:
+                                        pass
+                                    knight.hp = 100
+                                    if lives == 0:
+                                        knight.die(character)
+                            else:
+                                knight.took_damage = False
+
             COLLECTIBLE_LIFETIME = 10000 
             for item in collectibles[:]:
                 c = item['obj']
@@ -418,69 +495,73 @@ while True:
 
             for heart in hearts:
                 heart.draw(window)
+
+            if not boss_spawned:
             
-            for skeleton in skeletons:
-                for healthbar in healthbars:
-                    healthbar.update(skeleton.hp, skeleton.rect.x, skeleton.rect.y, 60)
-                    healthbar.draw(window)
+                for skeleton in skeletons:
+                    for healthbar in healthbars:
+                        healthbar.update(skeleton.hp, skeleton.rect.x, skeleton.rect.y, 60)
+                        healthbar.draw(window)
 
             for archer in archers:
                 for healthbar in healthbars:
                     healthbar.update(archer.hp, archer.rect.x, archer.rect.y, 80)
                     healthbar.draw(window)
+
+            if not boss_spawned:
             
-            for skeleton in skeletons:
+                for skeleton in skeletons:
+                    
+                    skeleton.update("Skeleton_Spearman")
+                    skeleton.draw(window)
+
+                    if skeleton.rect.x < knight.rect.x:
+                        distance = (knight.rect.x - skeleton.rect.x) - 30
+                    else:
+                        distance = skeleton.rect.x - knight.rect.x
+
+                    if distance <= 60:
                 
-                skeleton.update("Skeleton_Spearman")
-                skeleton.draw(window)
+                        if not getattr(skeleton, 'attacking', False):
+                            skeleton.attack("Skeleton_Spearman")
 
-                if skeleton.rect.x < knight.rect.x:
-                    distance = (knight.rect.x - skeleton.rect.x) - 30
-                else:
-                    distance = skeleton.rect.x - knight.rect.x
+                        if getattr(skeleton, 'attacking', False) and not getattr(skeleton, 'play_once_done', False):
+                            if not getattr(knight, 'took_damage', False) and not getattr(knight, 'dead', False):
 
-                if distance <= 60:
-            
-                    if not getattr(skeleton, 'attacking', False):
-                        skeleton.attack("Skeleton_Spearman")
-
-                    if getattr(skeleton, 'attacking', False) and not getattr(skeleton, 'play_once_done', False):
-                        if not getattr(knight, 'took_damage', False) and not getattr(knight, 'dead', False):
-
-                            blocked = False
-                            try:
-                                if getattr(knight, 'defending', False):
-                                    if getattr(knight, 'direction', None) != getattr(skeleton, 'direction', None):
-                                        blocked = True
-                            except Exception:
                                 blocked = False
-
-                            if not blocked:
-
-                                knight.hp = max(0, knight.hp - 5)
-                                knight.took_damage = True
                                 try:
-                                    knight.change_animation(f"{character}/Hurt.png", 128, 128, play_once=True)
+                                    if getattr(knight, 'defending', False):
+                                        if getattr(knight, 'direction', None) != getattr(skeleton, 'direction', None):
+                                            blocked = True
                                 except Exception:
-                                    pass
-                                knight.resize(200, 200)
-                                if knight.hp <= 0:
-                                    lives -= 1
+                                    blocked = False
+
+                                if not blocked:
+
+                                    knight.hp = max(0, knight.hp - 5)
+                                    knight.took_damage = True
                                     try:
-                                        hearts.remove(hearts[-1])
+                                        knight.change_animation(f"{character}/Hurt.png", 128, 128, play_once=True)
                                     except Exception:
                                         pass
-                                    knight.hp = 100
-                                    if lives == 0:
-                                        knight.die(character)
-                            else:
-                                knight.took_damage = False
+                                    knight.resize(200, 200)
+                                    if knight.hp <= 0:
+                                        lives -= 1
+                                        try:
+                                            hearts.remove(hearts[-1])
+                                        except Exception:
+                                            pass
+                                        knight.hp = 100
+                                        if lives == 0:
+                                            knight.die(character)
+                                else:
+                                    knight.took_damage = False
 
-                    if getattr(skeleton, 'play_once_done', False):
-                        knight.took_damage = False
-                
-                else:
-                    skeleton.move(knight.rect.centerx, "Skeleton_Spearman")
+                        if getattr(skeleton, 'play_once_done', False):
+                            knight.took_damage = False
+                    
+                    else:
+                        skeleton.move(knight.rect.centerx, "Skeleton_Spearman")
 
             if getattr(knight, 'dead', False) and getattr(knight, 'play_once_done', False):
                 if not highscore_written:

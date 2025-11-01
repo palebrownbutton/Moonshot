@@ -32,6 +32,8 @@ font.rendered_text = text1.render("Welcome to Bones and Blades!", True, (255, 25
 text2 = font.SysFont("Arial", 30)
 font.rendered_subtext = text2.render("By Simona", True, (255, 255, 255))
 
+logo = StillImage(303, 210, 200, 200, "Bones and Blades Logo.png")
+
 is_selected = "play"
 last_move = 0
 move_delay = 150
@@ -51,6 +53,7 @@ def start_screen(window):
         instructions_button.draw(window, is_selected)
         window.blit(font.rendered_text, (120, 100))
         window.blit(font.rendered_subtext, (340, 160))
+        logo.draw(window)
         return True
 
     if ignore_return_local:
@@ -59,6 +62,7 @@ def start_screen(window):
         instructions_button.draw(window, is_selected)
         window.blit(font.rendered_text, (120, 100))
         window.blit(font.rendered_subtext, (340, 160))
+        logo.draw(window)
         if pressed[K_RETURN]:
             return True
         else:
@@ -72,6 +76,7 @@ def start_screen(window):
         
         window.blit(font.rendered_text, (120, 100))
         window.blit(font.rendered_subtext, (340, 160))
+        logo.draw(window)
 
         pressed = key.get_pressed()
         now = time.get_ticks()
@@ -134,12 +139,14 @@ playAgian = Buttons(100, 200, 600, 600, "play_again_button.png", "playAgain")
 home = Buttons(100, 380, 600, 600, "home_button.png", "home")
 game_over_txt = font.SysFont("Arial", 150)
 font.rendered_game_over = game_over_txt.render("Game Over...", True, (255, 0, 0))
+
 with open ("highscore.txt", 'r') as file:
     lines = file.readlines()
     numbers = [int(line.strip()) for line in lines if line.strip().isdigit()]
 highscore = max(numbers) if numbers else 0
 highscore_text = font.SysFont("Arial", 50)
 font.rendered_highscore = highscore_text.render(f"High Score: {highscore}", True, (255, 255, 255))
+
 def game_over(window):
     global is_selected, move_delay, last_move, instructions_open
 

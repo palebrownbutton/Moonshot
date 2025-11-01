@@ -26,7 +26,6 @@ class Enemy(AnimatedSprite):
         else:
             self.rect.x = random.randint(670, 1070)
             self.direction = "left"
-        self.rect.y = 590
 
         self.hp = 60
         self.dead = False
@@ -135,6 +134,43 @@ class Skeleton(Enemy):
                 self.change_animation(f"{enemy_type}/Attack_2.png", 128, 128, play_once=True)
             except Exception:
                 pass
+
+class BossSkeleton(Enemy):
+
+    def __init__(self, sprite_sheet, x, y, w, h, enemy_type, hp=300):
+        super().__init__(sprite_sheet, x, y, w, h, enemy_type, hp)
+
+    def move(self, player_x):
+
+        if getattr(self, "attacking", False):
+            return 
+
+        attack_range = 170  
+
+        if self.rect.centerx < player_x - attack_range:
+            self.rect.x += 2
+            self.direction = "right"
+            try:
+                self.change_animation("Skeleton_Spearman/Run.png", 128, 128)
+            except Exception:
+                pass
+        elif self.rect.centerx > player_x + attack_range:
+            self.rect.x -= 2
+            self.direction = "left"
+            try:
+                self.change_animation("Skeleton_Spearman/Run.png", 128, 128)
+            except Exception:
+                pass
+        else:
+            self.attack()
+            
+    def attack(self):
+        
+        self.attacking = True
+        try:
+            self.change_animation("Skeleton_Spearman/Attack_1.png", 128, 128, play_once=True)
+        except Exception:
+            pass
 
 class Archer(Enemy):
 
