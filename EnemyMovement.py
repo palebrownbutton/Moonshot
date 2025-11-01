@@ -145,60 +145,59 @@ class Archer(Enemy):
 
     def move(self, player_x, enemy_type):
         global can_shoot
-
         if getattr(self, 'attacking', False):
             return
 
-        if self.rect.x < -75 or self.rect.x < player_x - 350:
+        # Desired behaviour:
+        # - Move towards the player until within a preferred firing distance.
+        # - Once within firing distance (STOP_DISTANCE), do not walk away — only
+        #   ensure the archer is facing the player so it can shoot.
+        STOP_DISTANCE = 320
+
+        # If the archer spawned off-screen, move it on-screen first
+        if self.rect.x < -75:
             self.rect.x += 2
             try:
                 self.change_animation(f"{enemy_type}/Run.png", 128, 128)
             except Exception:
                 pass
             return
-
-        elif self.rect.x > 800 or self.rect.x > player_x + 350:
-            self.rect.x -= 1.3
+        if self.rect.x > 880:
+            self.rect.x -= 2
             try:
                 self.change_animation(f"{enemy_type}/Run.png", 128, 128)
             except Exception:
                 pass
             return
-        
-        if self.direction == "right" and not getattr(self, "attacking", False):
-            if player_x + 100 < self.rect.x:
-                self.direction = "left"
-                self.rect.x -= 2
-                if not getattr(self, 'attacking', False):
-                    try:
-                        self.change_animation(f"{enemy_type}/Run.png", 128, 128)
-                    except Exception:
-                        pass
-            else:
-                self.rect.x += 2
-                if not getattr(self, 'attacking', False):
-                    try:
-                        self.change_animation(f"{enemy_type}/Run.png", 128, 128)
-                    except Exception:
-                        pass
-        
-        if self.direction == "left" and not getattr(self, "attacking", False):
 
-            if player_x - 100 > self.rect.x:
-                self.direction = "right"
+        dist = abs(self.rect.x - player_x)
+
+        # If too far, move towards the player
+        if dist > STOP_DISTANCE:
+            if self.rect.x < player_x:
+                # move right toward player
                 self.rect.x += 2
-                if not getattr(self, 'attacking', False):
-                    try:
-                        self.change_animation(f"{enemy_type}/Run.png", 128, 128)
-                    except Exception:
-                        pass
+                self.direction = 'right'
             else:
+                # move left toward player
                 self.rect.x -= 2
-                if not getattr(self, 'attacking', False):
-                    try:
-                        self.change_animation(f"{enemy_type}/Run.png", 128, 128)
-                    except Exception:
-                        pass
+                self.direction = 'left'
+            try:
+                self.change_animation(f"{enemy_type}/Run.png", 128, 128)
+            except Exception:
+                pass
+            return
+
+        # Within stop distance: don't move horizontally. Just face the player
+        if self.rect.x < player_x:
+            self.direction = 'right'
+        else:
+            self.direction = 'left'
+        # keep run animation so they're visibly active but not walking away
+        try:
+            self.change_animation(f"{enemy_type}/Run.png", 128, 128)
+        except Exception:
+            pass
         
     def attack(self, enemy_type):
         global arrows

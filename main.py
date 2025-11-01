@@ -44,7 +44,7 @@ background = StillImage(0, 0, 800, 800, "background1.png")
 background_switched = False
 
 def game_reset():
-    global knight, character, skeletons, prev_space, prev_down, ignore_return, scorenum, max_skeletons, live_skeletons,  hearts, lives, archers, max_archers, archers_active, background, background_switched, game_start_time
+    global knight, character, skeletons, prev_space, prev_down, ignore_return, scorenum, max_skeletons, live_skeletons,  hearts, lives, archers, max_archers, archers_active, background, background_switched, game_start_time, highscore_written
 
     background = StillImage(0, 0, 800, 800, "background1.png")
     background_switched = False
@@ -85,6 +85,11 @@ def game_reset():
 
     archers_active = False
 
+    try:
+        highscore_written = False
+    except Exception:
+        pass
+
     lives = 5
     hearts = []
     HEART_X_BASE = 135
@@ -114,6 +119,17 @@ last_spawn_time = time.get_ticks()
 archer_spawn_time = time.get_ticks()
 game_start_time = None
 heart_spawn_time = time.get_ticks()
+
+try:
+    with open("highscore.txt", 'r') as file:
+        lines = file.readlines()
+        numbers = [int(line.strip()) for line in lines if line.strip().isdigit()]
+    highscore = max(numbers) if numbers else 0
+except Exception:
+    highscore = 0
+
+highscore_written = False
+
 
 while True:
 
@@ -348,18 +364,18 @@ while True:
                     collided = arrow.rect.inflate(20, 20).colliderect(knight.rect)
                     tunneled = (prev_x > knight.rect.right and arrow.rect.x < knight.rect.left) or (prev_x < knight.rect.left and arrow.rect.x > knight.rect.right)
                     if collided or tunneled:
-                        
-                        locked = False
+
+                        blocked = False
                         try:
                             if getattr(knight, 'defending', False):
-                                if getattr(knight, 'direction', None) != getattr(skeleton, 'direction', None):
+                                if getattr(knight, 'direction', None) != getattr(arrow, 'direction', None):
                                     blocked = True
                         except Exception:
                             blocked = False
 
                         if not blocked:
 
-                            knight.hp = max(0, knight.hp - 5)
+                            knight.hp = max(0, knight.hp - 10)
                             knight.took_damage = True
                             try:
                                 knight.change_animation(f"{character}/Hurt.png", 128, 128, play_once=True)
@@ -377,6 +393,7 @@ while True:
                                     knight.die(character)
                             else:
                                 knight.took_damage = False
+
                         try:
                             arrows.remove(arrow)
                         except ValueError:
@@ -449,6 +466,17 @@ while True:
                     skeleton.move(knight.rect.centerx, "Skeleton_Spearman")
 
             if getattr(knight, 'dead', False) and getattr(knight, 'play_once_done', False):
+                if not highscore_written:
+                    try:
+                        with open("highscore.txt", 'a') as file:
+                            file.write("\n" + str(scorenum))
+                    except Exception:
+                        pass
+                    highscore_written = True
+                if scorenum > highscore:
+                    highscore = scorenum
+                    with open("highscore.txt", 'w') as file:
+                        file.write(str(highscore))
                 ignore_return = True
                 is_home = None
                 StartScreen.ignore_return_local = True

@@ -114,12 +114,19 @@ def instructions_menu(window):
     window.blit(font.rendered_instructionstext, (250, 60))
     house_button.draw(window)
 
-    if (mouse_x >= house_button.rect.x and mouse_x <= house_button.rect.x + house_button.rect.width
-            and mouse_y >= house_button.rect.y and mouse_y <= house_button.rect.y + house_button.rect.height):
+    pressed_key = key.get_pressed()
+
+    if pressed_key[K_RETURN]:
+        instructions_open = False
+        ignore_return_local = True
+        ignore_until = time.get_ticks() + 300
+
+    elif (mouse_x >= house_button.rect.x and mouse_x <= house_button.rect.x + house_button.rect.width and mouse_y >= house_button.rect.y and mouse_y <= house_button.rect.y + house_button.rect.height):
         if mouse.get_pressed()[0]:
             instructions_open = False
             ignore_return_local = True
             ignore_until = time.get_ticks() + 300
+
 
     return True
 
@@ -127,7 +134,12 @@ playAgian = Buttons(100, 200, 600, 600, "play_again_button.png", "playAgain")
 home = Buttons(100, 380, 600, 600, "home_button.png", "home")
 game_over_txt = font.SysFont("Arial", 150)
 font.rendered_game_over = game_over_txt.render("Game Over...", True, (255, 0, 0))
-
+with open ("highscore.txt", 'r') as file:
+    lines = file.readlines()
+    numbers = [int(line.strip()) for line in lines if line.strip().isdigit()]
+highscore = max(numbers) if numbers else 0
+highscore_text = font.SysFont("Arial", 50)
+font.rendered_highscore = highscore_text.render(f"High Score: {highscore}", True, (255, 255, 255))
 def game_over(window):
     global is_selected, move_delay, last_move, instructions_open
 
@@ -138,7 +150,8 @@ def game_over(window):
     playAgian.draw(window, is_selected)
     home.draw(window, is_selected)
     window.blit(font.rendered_game_over, (45, 50))
-    
+    window.blit(font.rendered_highscore, (255, 250))
+
     pressed= key.get_pressed()
     now = time.get_ticks()
     if pressed[K_UP] and now - last_move >= move_delay:
