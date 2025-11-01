@@ -27,9 +27,9 @@ skeletons = []
 max_skeletons = 3
 live_skeletons = 3
 for i in range(live_skeletons):
-    skelton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
-    skelton.spawn("Skeleton_Spearman")
-    skeletons.append(skelton)
+    skeleton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
+    skeleton.spawn("Skeleton_Spearman")
+    skeletons.append(skeleton)
 
 archers = []
 max_archers = 2
@@ -37,6 +37,14 @@ for i in range(max_archers):
     archer = Archer("Skeleton_Archer/Idle.png", -200, 590, 128, 128, "Skeleton_Archer")
     archer.spawn("Skeleton_Archer")
     archers.append(archer)
+
+healthbars = []
+for skeleton in skeletons:
+    healthbar = Healthbars(skeleton.rect.x + 75, skeleton.rect.y + 90, 50, 7)
+    healthbars.append(healthbar)
+for arcehr in archers:
+    healthbar = Healthbars(archer.rect.x + 75, archer.rect.y + 90, 50, 7)
+    healthbars.append(healthbar)
 
 archers_active = False
 
@@ -62,9 +70,9 @@ def game_reset():
     live_skeletons = 3
     max_skeletons = 3
     for i in range(live_skeletons):
-        skelton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
-        skelton.spawn("Skeleton_Spearman")
-        skeletons.append(skelton)
+        skeleton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
+        skeleton.spawn("Skeleton_Spearman")
+        skeletons.append(skeleton)
 
     archers = []
     max_archers = 2
@@ -130,7 +138,6 @@ except Exception:
 
 highscore_written = False
 
-
 while True:
 
     for e in event.get():
@@ -190,9 +197,9 @@ while True:
                 max_skeletons += 1
                 for i in range(max_skeletons - live_skeletons + 1):
                     if len(skeletons) <= 6:
-                        skelton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
-                        skelton.spawn("Skeleton_Spearman")
-                        skeletons.append(skelton)
+                        skeleton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
+                        skeleton.spawn("Skeleton_Spearman")
+                        skeletons.append(skeleton)
                     else:
                         break
 
@@ -413,6 +420,16 @@ while True:
                 heart.draw(window)
             
             for skeleton in skeletons:
+                for healthbar in healthbars:
+                    healthbar.update(skeleton.hp, skeleton.rect.x, skeleton.rect.y, 60)
+                    healthbar.draw(window)
+
+            for archer in archers:
+                for healthbar in healthbars:
+                    healthbar.update(archer.hp, archer.rect.x, archer.rect.y, 80)
+                    healthbar.draw(window)
+            
+            for skeleton in skeletons:
                 
                 skeleton.update("Skeleton_Spearman")
                 skeleton.draw(window)
@@ -473,10 +490,6 @@ while True:
                     except Exception:
                         pass
                     highscore_written = True
-                if scorenum > highscore:
-                    highscore = scorenum
-                    with open("highscore.txt", 'w') as file:
-                        file.write(str(highscore))
                 ignore_return = True
                 is_home = None
                 StartScreen.ignore_return_local = True
@@ -488,9 +501,9 @@ while True:
             if len(skeletons) == 0:
                 live_skeletons = max_skeletons
                 for i in range(max_skeletons):
-                    skelton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
-                    skelton.spawn("Skeleton_Spearman")
-                    skeletons.append(skelton)
+                    skeleton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
+                    skeleton.spawn("Skeleton_Spearman")
+                    skeletons.append(skeleton)
             if max_skeletons > 6:
                 max_skeletons = 6
             while len(skeletons) > max_skeletons:

@@ -28,7 +28,7 @@ class Enemy(AnimatedSprite):
             self.direction = "left"
         self.rect.y = 590
 
-        self.hp = 50
+        self.hp = 60
         self.dead = False
         self.attacking = False
         self.play_once = False
@@ -138,7 +138,7 @@ class Skeleton(Enemy):
 
 class Archer(Enemy):
 
-    def __init__(self, sprite_sheet, x, y, w, h, enemy_type, hp=75):
+    def __init__(self, sprite_sheet, x, y, w, h, enemy_type, hp=80):
         super().__init__(sprite_sheet, x, y, w, h, enemy_type, hp)
 
         self.shoot_cooldown = 0
@@ -148,13 +148,8 @@ class Archer(Enemy):
         if getattr(self, 'attacking', False):
             return
 
-        # Desired behaviour:
-        # - Move towards the player until within a preferred firing distance.
-        # - Once within firing distance (STOP_DISTANCE), do not walk away — only
-        #   ensure the archer is facing the player so it can shoot.
         STOP_DISTANCE = 320
 
-        # If the archer spawned off-screen, move it on-screen first
         if self.rect.x < -75:
             self.rect.x += 2
             try:
@@ -172,14 +167,11 @@ class Archer(Enemy):
 
         dist = abs(self.rect.x - player_x)
 
-        # If too far, move towards the player
         if dist > STOP_DISTANCE:
             if self.rect.x < player_x:
-                # move right toward player
                 self.rect.x += 2
                 self.direction = 'right'
             else:
-                # move left toward player
                 self.rect.x -= 2
                 self.direction = 'left'
             try:
@@ -187,13 +179,12 @@ class Archer(Enemy):
             except Exception:
                 pass
             return
-
-        # Within stop distance: don't move horizontally. Just face the player
+        
         if self.rect.x < player_x:
             self.direction = 'right'
         else:
             self.direction = 'left'
-        # keep run animation so they're visibly active but not walking away
+
         try:
             self.change_animation(f"{enemy_type}/Run.png", 128, 128)
         except Exception:
@@ -224,3 +215,23 @@ class Arrows(StillImage):
         else:
             self.rect.x += 10
         return self.rect.right < 0 or self.rect.left > 800
+    
+class Healthbars():
+
+    def __init__(self, x, y, w, h):
+        
+        self.rect = Rect(x, y, w, h)
+
+    def draw(self, window):
+        
+        draw.rect(window, (201, 2, 2), self.rect)
+        fill_rect = Rect(self.rect.x, self.rect.y, self.fill_width, self.rect.h)
+        draw.rect(window, (1, 145, 28), fill_rect)
+        draw.rect(window, (0, 0, 0), self.rect, 2)
+
+    def update(self, enemy_hp, enemy_x, enemy_y, max_enemy_hp):
+
+        fill_portion = max(0, min(1, enemy_hp / max_enemy_hp))
+        self.fill_width = int(self.rect.w * fill_portion)
+        self.rect.x = enemy_x + 75
+        self.rect.y = enemy_y + 90
