@@ -12,10 +12,9 @@ class Enemy(AnimatedSprite):
         super().__init__(sprite_sheet, x, y, w, h)
 
         self.hp = hp
-        self.strenght = 5
         self.dead = False
 
-    def spawn(self, enemy_type):
+    def spawn(self, enemy_type, hp):
 
         self.resize(200, 200)
         
@@ -27,7 +26,7 @@ class Enemy(AnimatedSprite):
             self.rect.x = random.randint(670, 1070)
             self.direction = "left"
 
-        self.hp = 60
+        self.hp = hp
         self.dead = False
         self.attacking = False
         self.play_once = False
@@ -60,8 +59,12 @@ class Enemy(AnimatedSprite):
             return
 
     def die(self, enemy_type):
+
         if getattr(self, 'dead', False):
             return
+
+        self.hp = max(0, self.hp)
+
         self.dead = True
         self.attacking = False
         self.play_once = True

@@ -33,14 +33,14 @@ max_skeletons = 3
 live_skeletons = 3
 for i in range(live_skeletons):
     skeleton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
-    skeleton.spawn("Skeleton_Spearman")
+    skeleton.spawn("Skeleton_Spearman", 60)
     skeletons.append(skeleton)
 
 archers = []
 max_archers = 2
 for i in range(max_archers):
     archer = Archer("Skeleton_Archer/Idle.png", -200, 590, 128, 128, "Skeleton_Archer")
-    archer.spawn("Skeleton_Archer")
+    archer.spawn("Skeleton_Archer", 80)
     archers.append(archer)
 
 healthbars = []
@@ -84,14 +84,14 @@ def game_reset():
     max_skeletons = 3
     for i in range(live_skeletons):
         skeleton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
-        skeleton.spawn("Skeleton_Spearman")
+        skeleton.spawn("Skeleton_Spearman", 60)
         skeletons.append(skeleton)
 
     archers = []
     max_archers = 2
     for i in range(max_archers):
         archer = Archer("Skeleton_Archer/Idle.png", -200, 590, 128, 128, "Skeleton_Archer")
-        archer.spawn("Skeleton_Archer")
+        archer.spawn("Skeleton_Archer", 80)
         archers.append(archer)
 
     try:
@@ -221,14 +221,14 @@ while True:
                 for i in range(max_skeletons - live_skeletons + 1):
                     if len(skeletons) <= 6:
                         skeleton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
-                        skeleton.spawn("Skeleton_Spearman")
+                        skeleton.spawn("Skeleton_Spearman", 60)
                         skeletons.append(skeleton)
                     else:
                         break
             
-            if not boss_spawned and game_start_time is not None and current_time - game_start_time > 60000 and boss_beat == False:
+            if not boss_spawned and game_start_time is not None and current_time - game_start_time > 5000 and boss_beat == False:
                 boss_skeleton = BossSkeleton("Skeleton_Spearman/Idle.png", random.randint(-600, -200), 290, 256, 256, "Skeleton_Spearman")
-                boss_skeleton.spawn("Skeleton_Spearman")
+                boss_skeleton.spawn("Skeleton_Spearman", 150)
                 boss_skeleton.resize(500, 500)
                 healthbar = Healthbars(boss_skeleton.rect.x + 150, boss_skeleton.rect.y + 200, 200, 20)
                 boss_spawned = True
@@ -246,7 +246,7 @@ while True:
                     for i in range(max_archers - 1):
                         if len(archers) <= 4:
                             archer = Archer("Skeleton_Archer/Idle.png", -200, 590, 128, 128, "Archer_Spearman")
-                            archer.spawn("Skeleton_Archer")
+                            archer.spawn("Skeleton_Archer", 80)
                             archers.append(archer)
                         else:
                             break
@@ -470,6 +470,7 @@ while True:
 
                 if getattr(boss_skeleton, 'dead', False) and getattr(boss_skeleton, 'play_once_done', False):
                     boss_spawned = False
+                    boss_beat = True
                     boss_skeleton = None
 
 
@@ -678,7 +679,7 @@ while True:
                 live_skeletons = max_skeletons
                 for i in range(max_skeletons):
                     skeleton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
-                    skeleton.spawn("Skeleton_Spearman")
+                    skeleton.spawn("Skeleton_Spearman", 60)
                     skeletons.append(skeleton)
             if max_skeletons > 6:
                 max_skeletons = 6
@@ -691,7 +692,7 @@ while True:
 
             if len(archers) == 0:
                 archer = Archer("Skeleton_Archer/Idle.png", -200, 590, 128, 128, "Skeleton_Archer")
-                archer.spawn("Skeleton_Archer")
+                archer.spawn("Skeleton_Archer", 80)
                 archers.append(archer)
             
     display.update()
