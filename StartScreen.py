@@ -1,6 +1,8 @@
 from pygame import *
 from AnimatedSprite import *
 from StillImage import StillImage
+import time as pytime
+
 font.init()
 
 class Buttons():
@@ -146,6 +148,61 @@ with open ("highscore.txt", 'r') as file:
 highscore = max(numbers) if numbers else 0
 highscore_text = font.SysFont("Arial", 50)
 font.rendered_highscore = highscore_text.render(f"High Score: {highscore}", True, (255, 255, 255))
+
+pause_box = StillImage(-5, -30, 800, 900, "pause_box.png")
+continue_gameplay = Buttons(200, 130, 400, 400, "continue_button.png", "continue_gameplay")
+view_quests = Buttons(200, 220, 400, 400, "view_quests_button.png", "view_quests")
+exit_gameplay = Buttons(200, 310, 400, 400, "exit_gameplay_button.png", "exit_gameplay")
+
+def pause_screen(window):
+    global is_selected, last_move, move_delay, home
+
+    if is_selected not in ("continue_gameplay", "view_quests", "exit_gameplay"):
+        is_selected = "continue_gameplay"
+
+    pause_box.draw(window)
+    continue_gameplay.draw(window, is_selected)
+    view_quests.draw(window, is_selected)
+    exit_gameplay.draw(window, is_selected)
+
+    pressed = key.get_pressed()
+    now = time.get_ticks()
+    if pressed[K_UP] and now - last_move >= move_delay:
+
+        if is_selected == "continue_gameplay":
+            is_selected = "exit_gameplay"
+        elif is_selected == "view_quests":
+            is_selected = "continue_gameplay"
+        else:
+            is_selected = "view_quests"
+        last_move = now
+    elif pressed[K_DOWN] and now - last_move >= move_delay:
+
+        if is_selected == "continue_gameplay":
+            is_selected = "view_quests"
+        elif is_selected == "view_quests":
+            is_selected = "exit_gameplay"
+        else:
+            is_selected = "continue_gameplay"
+        last_move = now
+
+    paused_game = True
+    is_home = False
+
+    if pressed[K_RETURN]:
+        
+        if is_selected == "continue_gameplay":
+            paused_game = False
+        elif is_selected == "exit_gameplay":
+            paused_game = False
+            is_home = True
+            is_selected = "play"
+            pytime.sleep(0.2)
+        else:
+            pass
+            # Add quests menu after creating quest log in javascript file seperate
+    
+    return paused_game, is_home
 
 def game_over(window):
     global is_selected, move_delay, last_move, instructions_open
