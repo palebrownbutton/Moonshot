@@ -17,6 +17,14 @@ class Knight(AnimatedSprite):
         self.dead = False
         self.took_damage = False
 
+    def get_hitbox(self):
+
+        hb_w = 128
+        hb_h = 128
+        hb_x = self.rect.centerx - hb_w // 2
+        hb_y = self.rect.y
+        return Rect(hb_x, hb_y, hb_w, hb_h)
+
     def die(self, character):
         if getattr(self, 'dead', False):
             return

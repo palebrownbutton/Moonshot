@@ -137,7 +137,7 @@ class Skeleton(Enemy):
 
 class BossSkeleton(Enemy):
 
-    def __init__(self, sprite_sheet, x, y, w, h, enemy_type, hp=300):
+    def __init__(self, sprite_sheet, x, y, w, h, enemy_type, hp=150):
         super().__init__(sprite_sheet, x, y, w, h, enemy_type, hp)
 
     def move(self, player_x):
@@ -163,7 +163,7 @@ class BossSkeleton(Enemy):
                 pass
         else:
             self.attack()
-            
+
     def attack(self):
         
         self.attacking = True
