@@ -1,7 +1,7 @@
 from pygame import *
 import math
 
-class BossText:
+class WavesText:
 
     def __init__(self, image, position, duration=1000):
         
@@ -29,10 +29,6 @@ class BossText:
         if not self.active:
             return
     
-        if self.timer < self.flash_duration:
-            surface.fill((255, 255, 255))
-            self.flash_triggered = True
-
         progress = self.timer / self.duration
         scale_factor = 1.5 - 0.5 * math.cos(progress * math.pi * 2)
 
