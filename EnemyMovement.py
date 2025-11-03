@@ -58,6 +58,16 @@ class Enemy(AnimatedSprite):
             self.remove = True
             return
 
+    def get_hitbox(self):
+        """Return a consistent 128x128 hitbox for small enemies, centered
+        horizontally on the enemy's rect and aligned to its top.
+        """
+        hb_w = 128
+        hb_h = 128
+        hb_x = self.rect.centerx - hb_w // 2
+        hb_y = self.rect.y
+        return Rect(hb_x, hb_y, hb_w, hb_h)
+
     def die(self, enemy_type):
 
         if getattr(self, 'dead', False):
@@ -175,15 +185,26 @@ class BossSkeleton(Enemy):
         except Exception:
             pass
 
+    def get_hitbox(self):
+
+        hb_w = 400
+        hb_h = 400
+        hb_x = self.rect.centerx - hb_w // 2
+        hb_y = self.rect.y
+        return Rect(hb_x, hb_y, hb_w, hb_h)
+
 class Archer(Enemy):
 
     def __init__(self, sprite_sheet, x, y, w, h, enemy_type, hp=80):
         super().__init__(sprite_sheet, x, y, w, h, enemy_type, hp)
 
         self.shoot_cooldown = 0
+        self.arrow_timer = None
+        self.arrow_fired = False
 
     def move(self, player_x, enemy_type):
         global can_shoot
+
         if getattr(self, 'attacking', False):
             return
 
@@ -233,23 +254,115 @@ class Archer(Enemy):
         global arrows
 
         self.attacking = True
+        self.arrow_fired = False
+        self.arrow_timer = time.get_ticks() + 400
         try:
             self.change_animation(f"{enemy_type}/Shot_1.png", 128, 128, play_once=True)
         except Exception:
             pass
+    
+    def update(self, enemy_type):
+        super().update(enemy_type)
 
-        arrow = Arrows(self.rect.x + 50, self.rect.y + 90, 83, 100, "arrow.png", direction=self.direction)
-        arrows.append(arrow)
+        if self.attacking and not self.arrow_fired and self.arrow_fired and time.get_ticks() >= self.arrow_timer:
+            arrow = Arrows(self.rect.x + 50, self.rect.y + 90, 83, 100, "arrow.png", direction=self.direction)
+            arrows.append(arrow)
+            self.arrow_fired = True
+
+class BossArcher(Enemy):
+
+    def __init__(self, sprite_sheet, x, y, w, h, enemy_type, hp=250):
+        super().__init__(sprite_sheet, x, y, w, h, enemy_type, hp)
+
+    def move(self, player_x):
+        global can_shoot
+
+        if getattr(self, 'attacking', False):
+            return
+
+        STOP_DISTANCE = 150
+
+        if self.rect.x < -75:
+            self.rect.x += 2
+            try:
+                self.change_animation("Skeleton_Archer/Run.png", 128, 128)
+            except Exception:
+                pass
+            return
+        if self.rect.x > 880:
+            self.rect.x -= 2
+            try:
+                self.change_animation("Skeleton_Archer/Run.png", 128, 128)
+            except Exception:
+                pass
+            return
+
+        dist = abs(self.rect.x - player_x)
+
+        if dist > STOP_DISTANCE:
+            if self.rect.x < player_x:
+                self.rect.x += 2
+                self.direction = 'right'
+            else:
+                self.rect.x -= 2
+                self.direction = 'left'
+            try:
+                self.change_animation("Skeleton_Archer/Run.png", 128, 128)
+            except Exception:
+                pass
+            return
+        
+        if self.rect.x < player_x:
+            self.direction = 'right'
+        else:
+            self.direction = 'left'
+
+        try:
+            self.change_animation("Skeleton_Archer/Run.png", 128, 128)
+        except Exception:
+            pass
+
+    def attack(self):
+        global arrows
+
+        self.attacking = True
+        self.arrow_fired = False  
+        self.arrow_timer = time.get_ticks() + 950
+        try:
+            self.change_animation("Skeleton_Archer/Shot_1.png", 128, 128, play_once=True)
+        except Exception:
+            pass
+
+    def update(self, enemy_type):
+        super().update(enemy_type)
+    
+        if self.attacking and not self.arrow_fired and self.arrow_timer and time.get_ticks() >= self.arrow_timer:            
+            arrow = Arrows(self.rect.x + 50, self.rect.y + 65, 83, 100, "arrow.png", direction=self.direction)
+            arrows.append(arrow)
+            self.arrow_fired = True
+
+    def get_hitbox(self):
+
+        hb_w = 400
+        hb_h = 400
+        hb_x = self.rect.centerx - hb_w // 2
+        hb_y = self.rect.y
+        return Rect(hb_x, hb_y, hb_w, hb_h)
 
 class Arrows(StillImage):
 
-    def __init__(self, x, y, w, h, filename, direction='right'):
+    def __init__(self, x, y, w, h, filename, direction):
         super().__init__(x, y, w, h, filename)
 
         self.direction = direction
+        self.image = image.load(filename).convert_alpha()
+
+        if self.direction == "right":
+            self.image = transform.flip(self.image, True, False)
 
     def update(self):
-        if getattr(self, 'direction', 'right') == "left":
+        
+        if self.direction == "left":
             self.rect.x -= 10
         else:
             self.rect.x += 10

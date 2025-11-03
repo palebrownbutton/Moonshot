@@ -56,13 +56,22 @@ for archer in archers:
     archer_healthbars.append(archer_healthbar)
 
 boss_skeleton = None
-boss_spawned = False
-boss_beat = False
-boss_battle_text = image.load("boss_battle_text.png").convert_alpha()
-boss_battle_text = transform.scale(boss_battle_text, (700, 700))
-boss_intro_effect = WavesText(boss_battle_text, (50, 90))
-boss_intro_timer = 0
-boss_intro_duration = 1000
+skeleton_boss_spawned = False
+skeleton_boss_beat = False
+skeleton_boss_battle_text = image.load("skeleton_boss_battle_text.png").convert_alpha()
+skeleton_boss_battle_text = transform.scale(skeleton_boss_battle_text, (700, 700))
+skeleton_boss_intro_effect = WavesText(skeleton_boss_battle_text, (50, 90))
+skeleton_boss_intro_timer = 0
+skeleton_boss_intro_duration = 1000
+
+boss_archer = None
+archer_boss_spawned = False
+archer_boss_beat = False
+archer_boss_battle_text = image.load("archer_boss_battle_text.png").convert_alpha()
+archer_boss_battle_text = transform.scale(archer_boss_battle_text, (700, 700))
+archer_boss_intro_effect = WavesText(archer_boss_battle_text, (50, 90))
+archer_boss_intro_timer = 0
+archer_boss_intro_duration = 1000
 
 archers_active = False
 
@@ -179,7 +188,7 @@ while True:
             exit()
 
     dt = clock.tick(60)
-    boss_intro_timer += dt
+    skeleton_boss_intro_timer += dt
 
     if is_home == True or StartScreen.instructions_open == True:
 
@@ -230,6 +239,7 @@ while True:
                 display.update()
                 clock.tick(60)
                 if is_home:
+                    game_reset()
                     is_home = True
                     paused_game = False
                     StartScreen.instructions_open = False
@@ -245,7 +255,7 @@ while True:
 
                 current_time = time.get_ticks()
 
-                if current_time - heart_spawn_time > 35000 and len(hearts) < 5:
+                if current_time - heart_spawn_time > 40000 and len(hearts) < 5:
                     heart_spawn_time = current_time
                     new_heart = StillImage(random.randint(-117, 710), random.choice([600, 715]), 45, 45, "hearts.png")
                     collectibles.append({
@@ -265,30 +275,37 @@ while True:
                         else:
                             break
                 
-                if not boss_spawned and game_start_time is not None and current_time - game_start_time > 60000 and boss_beat == False:
+                if not skeleton_boss_spawned and game_start_time is not None and current_time - game_start_time > 3000 and skeleton_boss_beat == False:
                     boss_skeleton = BossSkeleton("Skeleton_Spearman/Idle.png", random.randint(-600, -200), 290, 256, 256, "Skeleton_Spearman")
                     boss_skeleton.spawn("Skeleton_Spearman", 200)
                     boss_skeleton.resize(500, 500)
-                    boss_healthbar = Healthbars(boss_skeleton.rect.x + 75, boss_skeleton.rect.y + 100, 200, 20)
-                    boss_spawned = True
+                    skeleton_boss_healthbar = Healthbars(boss_skeleton.rect.x + 75, boss_skeleton.rect.y + 100, 200, 20)
+                    skeleton_boss_spawned = True
 
-                if scorenum >= 1000 and boss_beat == True:
+                if not archer_boss_spawned and game_start_time is not None and current_time - game_start_time > 30000 and archer_boss_beat == False and skeleton_boss_beat == True:
+                    boss_archer = BossArcher("Skeleton_Archer/Idle.png", random.randint(-600, -200), 290, 256, 256, "Skeleton_Archer")
+                    boss_archer.spawn("Skeleton_Archer", 200)
+                    boss_archer.resize(500, 500)
+                    boss_archer.change_animation("Skeleton_Archer/Idle.png", 256, 256, play_once=False)
+                    archer_boss_healthbar = Healthbars(boss_archer.rect.x + 75, boss_archer.rect.y + 100, 200, 20)
+                    archer_boss_spawned = True
 
+                if archer_boss_beat:
                     if not background_switched:
                         background = StillImage(0, 0, 800, 800, "background2.png")
                         background_switched = True
                     archers_active = True
-                
-                    if current_time - archer_spawn_time > 45000 and len(archers) <= 4:
+
+                    if current_time - archer_spawn_time > 45000 and len(archers) < 4:
                         archer_spawn_time = current_time
-                        max_archers += 1
-                        for i in range(max_archers - 1):
-                            if len(archers) <= 4:
-                                archer = Archer("Skeleton_Archer/Idle.png", -200, 590, 128, 128, "Archer_Spearman")
-                                archer.spawn("Skeleton_Archer", 65 * wave)
-                                archers.append(archer)
-                            else:
-                                break
+
+                        new_archer = Archer("Skeleton_Archer/Idle.png", -200, 590, 128, 128, "Skeleton_Archer")
+                        new_archer.spawn("Skeleton_Archer", 65 * wave)
+                        new_archer.resize(200, 200)
+                        new_archer.rect.x = random.randint(-600, -100)
+                        new_archer.rect.y = random.choice([550, 590, 630])
+
+                        archers.append(new_archer)
 
                 moved = False
 
@@ -332,7 +349,7 @@ while True:
                             else:
                                 distance = skeleton.rect.x - knight.rect.x
 
-                            if knight.get_hitbox().colliderect(skeleton.rect) and not knight.damage_dealt:
+                            if knight.get_hitbox().colliderect(skeleton.get_hitbox()) and not knight.damage_dealt:
                                 skeleton.hp -= 20
                                 knight.damage_dealt = True
 
@@ -408,7 +425,7 @@ while True:
                         else:
                             distance = archer.rect.x - knight.rect.x
 
-                        if knight_hitbox.colliderect(archer.rect) and getattr(knight, 'attacking', True) and not knight.damage_dealt:
+                        if knight_hitbox.colliderect(archer.get_hitbox()) and getattr(knight, 'attacking', True) and not knight.damage_dealt:
                             
                             archer.hp -= 20 
                             if archer.hp <= 0:
@@ -429,10 +446,10 @@ while True:
                         mixer.music.play(-1)
                         boss_skeleton.music_switched = True
 
-                    if boss_intro_effect.active:
+                    if skeleton_boss_intro_effect.active:
 
-                        boss_intro_effect.update(dt)
-                        boss_intro_effect.draw(window)
+                        skeleton_boss_intro_effect.update(dt)
+                        skeleton_boss_intro_effect.draw(window)
 
                     else:
 
@@ -440,11 +457,11 @@ while True:
                         boss_skeleton.draw(window)
 
                         if boss_skeleton.direction == "right":
-                            boss_front_x = boss_skeleton.rect.right
+                            skeleton_boss_front_x = boss_skeleton.rect.right
                         else:
-                            boss_front_x = boss_skeleton.rect.left
+                            skeleton_boss_front_x = boss_skeleton.rect.left
 
-                        distance = abs(knight.rect.centerx - boss_front_x)
+                        distance = abs(knight.rect.centerx - skeleton_boss_front_x)
 
                         if not hasattr(boss_skeleton, 'last_attack_time'):
                             boss_skeleton.last_attack_time = 0
@@ -501,22 +518,22 @@ while True:
                         else:
                             distance = boss_skeleton.rect.x - knight.rect.x
 
-                        if knight.get_hitbox().colliderect(boss_skeleton.rect) and not knight.damage_dealt:
-                                boss_skeleton.hp -= 20
-                                knight.damage_dealt = True
+                        if knight.get_hitbox().colliderect(boss_skeleton.get_hitbox()) and not knight.damage_dealt:
+                            boss_skeleton.hp -= 20
+                            knight.damage_dealt = True
 
-                                if boss_skeleton.hp <= 0:
+                            if boss_skeleton.hp <= 0:
 
-                                    scorenum += 1000
+                                scorenum += 1000 + (500 * wave)
 
-                                    boss_skeleton.die("Skeleton_Spearman")
+                                boss_skeleton.die("Skeleton_Spearman")
 
-                                    mixer.music.stop()
-                                    mixer.music.load("game_play.mp3")
-                                    mixer.music.set_volume(0.3)
-                                    mixer.music.play(-1)
+                                mixer.music.stop()
+                                mixer.music.load("game_play.mp3")
+                                mixer.music.set_volume(0.3)
+                                mixer.music.play(-1)
 
-                                    wave = 2
+                                wave += 1
 
                     if getattr(knight, 'play_once_done', False) and getattr(knight, 'attacking', False):
                         knight.damage_dealt = False
@@ -525,9 +542,122 @@ while True:
 
 
                     if getattr(boss_skeleton, 'dead', False) and getattr(boss_skeleton, 'play_once_done', False):
-                        boss_spawned = False
-                        boss_beat = True
+                        skeleton_boss_spawned = False
+                        skeleton_boss_beat = True
                         boss_skeleton = None
+
+                if boss_archer is not None:
+
+                    boss_archer.update("Skeleton_Archer")
+                    if getattr(boss_archer, 'play_once_done', False) and getattr(boss_archer, 'attacking', False):
+                        boss_archer.attacking = False
+                        boss_archer.play_once_done = False
+
+                    if not getattr(boss_archer, 'music_switched', False):
+                        mixer.music.stop()
+                        mixer.music.load("boss_fight.mp3")
+                        mixer.music.set_volume(0.5)
+                        mixer.music.play(-1)
+                        boss_archer.music_switched = True
+
+                    if archer_boss_intro_effect.active:
+
+                        archer_boss_intro_effect.update(dt)
+                        archer_boss_intro_effect.draw(window)
+
+                    else:
+
+                        boss_archer.move(knight.rect.centerx)
+                        boss_archer.draw(window)
+
+                        if boss_archer.direction == "right":
+                            archer_boss_front_x = boss_archer.rect.right
+                        else:
+                            archer_boss_front_x = boss_archer.rect.left
+
+                        distance = abs(knight.rect.centerx - archer_boss_front_x)
+
+                        if not hasattr(boss_archer, 'last_attack_time'):
+                            boss_archer.last_attack_time = 0
+
+                        if not getattr(boss_archer, 'attacking', False) and distance <= 150 and current_time - boss_archer.last_attack_time > 1000:
+                            boss_archer.attack()
+                            boss_archer.damage_dealt = False
+                            boss_archer.last_attack_time = current_time
+
+
+                        if getattr(boss_archer, 'attacking', False):
+
+                            if not getattr(boss_archer, 'play_once_done', False):
+                                if not getattr(knight, 'took_damage', False) and not getattr(knight, 'dead', False):
+                                    blocked = False
+                                    try:
+                                        if getattr(knight, 'defending', False):
+                                            if getattr(knight, 'direction', None) != getattr(boss_archer, 'direction', None):
+                                                blocked = True
+                                    except Exception:
+                                        blocked = False
+
+                                    if not blocked:
+                                        knight.hp = max(0, knight.hp - 20)
+                                        knight.took_damage = True
+                                        try:
+                                            knight.change_animation(f"{character}/Hurt.png", 128, 128, play_once=True)
+                                        except Exception:
+                                            pass
+                                        knight.resize(200, 200)
+                                        if knight.hp <= 0:
+                                            lives -= 1
+                                            try:
+                                                hearts.remove(hearts[-1])
+                                            except Exception:
+                                                pass
+                                            knight.hp = 100
+                                            if lives == 0:
+                                                knight.die(character)
+                                    else:
+                                        knight.took_damage = False
+                                        boss_archer.damage_dealt = True
+
+                        else:
+                            boss_archer.attacking = False
+                            boss_archer.play_once_done = False
+                            boss_archer.damage_dealt = False
+                            knight.took_damage = False
+
+                    if knight.attacking == True:
+
+                        if boss_archer.rect.x < knight.rect.x:
+                            distance = knight.rect.x - boss_archer.rect.x
+                        else:
+                            distance = boss_archer.rect.x - knight.rect.x
+                        if knight.get_hitbox().colliderect(boss_archer.get_hitbox()) and not knight.damage_dealt:
+                            boss_archer.hp -= 20
+                            knight.damage_dealt = True
+
+                            if boss_archer.hp <= 0:
+
+                                scorenum += 1000 + (500 * wave)
+
+                                boss_archer.die("Skeleton_Archer")
+
+                                mixer.music.stop()
+                                mixer.music.load("game_play.mp3")
+                                mixer.music.set_volume(0.3)
+                                mixer.music.play(-1)
+
+                                wave += 1
+
+                    if getattr(knight, 'play_once_done', False) and getattr(knight, 'attacking', False):
+                        knight.damage_dealt = False
+                        knight.attacking = False
+                        knight.play_once_done = False
+
+
+                    if getattr(boss_archer, 'dead', False) and getattr(boss_archer, 'play_once_done', False):
+                        archer_boss_spawned = False
+                        archer_boss_beat = True
+                        boss_archer = None
 
 
                 COLLECTIBLE_LIFETIME = 10000 
@@ -548,9 +678,7 @@ while True:
                         distance = c.rect.x - knight.rect.x
 
                     if knight_hitbox.colliderect(c.rect):
-                        if c.rect.x == 715 and getattr(knight, 'on_ground', True):
-                            continue
-                        else:
+                        if not (c.rect.x == 715 and getattr(knight, 'on_ground', True)):
                             if len(hearts) < 5:
                                 new_x = HEART_X_BASE + len(hearts) * HEART_SPACING
                                 heart = StillImage(new_x, 0, 45, 45, "hearts.png")
@@ -631,7 +759,7 @@ while True:
                 for heart in hearts:
                     heart.draw(window)
 
-                if not boss_spawned:
+                if not skeleton_boss_spawned:
                 
                     for skeleton in skeletons:
                         for skeleton_healthbar in skeleton_healthbars:
@@ -659,10 +787,20 @@ while True:
                         archer_healthbar.draw(window)
 
                 if boss_skeleton is not None and not getattr(boss_skeleton, 'dead', False):
-                    boss_healthbar.update(boss_skeleton.hp, boss_skeleton.rect.x + 75, boss_skeleton.rect.y + 100, 200)
-                    boss_healthbar.draw(window)
+                    skeleton_boss_healthbar.update(boss_skeleton.hp, boss_skeleton.rect.x + 75, boss_skeleton.rect.y + 100, 200)
+                    skeleton_boss_healthbar.draw(window)
 
-                if not boss_spawned:
+                if boss_archer is not None and not getattr(boss_archer, 'dead', False):
+                    archer_boss_healthbar.update(boss_archer.hp, boss_archer.rect.x + 75, boss_archer.rect.y + 100, 200)
+                    archer_boss_healthbar.draw(window)
+
+                if skeleton_boss_spawned or archer_boss_spawned:
+                    skeleton_healthbars.clear()
+                    archer_healthbars.clear()
+                    skeleton.clear()
+                    archers.clear()
+
+                if not skeleton_boss_spawned and not archer_boss_spawned:
                 
                     for skeleton in skeletons:
                         
@@ -741,6 +879,9 @@ while True:
                         skeleton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
                         skeleton.spawn("Skeleton_Spearman", 60 * wave)
                         skeletons.append(skeleton)
+                    for skeleton in skeletons:
+                        skeleton_healthbar = Healthbars(skeleton.rect.x + 75, skeleton.rect.y + 90, 50, 7)
+                        skeleton_healthbars.append(skeleton_healthbar)
                 if max_skeletons > 6:
                     max_skeletons = 6
                 while len(skeletons) > max_skeletons:
@@ -754,7 +895,8 @@ while True:
                     archer = Archer("Skeleton_Archer/Idle.png", -200, 590, 128, 128, "Skeleton_Archer")
                     archer.spawn("Skeleton_Archer", 65 * wave)
                     archers.append(archer)
-            
+                    archer_healthbar = Healthbars(archer.rect.x + 75, archer.rect.y + 90, 50, 7)
+                    archer_healthbars.append(archer_healthbar)
+
     display.update()
     clock.tick(60)
-
