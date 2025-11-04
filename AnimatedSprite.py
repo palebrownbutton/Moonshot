@@ -21,7 +21,7 @@ class AnimatedSprite(sprite.Sprite):
         self.rect.w = w
         self.rect.x = x
         self.rect.y = y
-        # persistent draw size (None = use raw frame size)
+
         self.scale_w = None
         self.scale_h = None
 
@@ -46,11 +46,11 @@ class AnimatedSprite(sprite.Sprite):
         
         if self.direction == "left":
             self.flip()
-        # If a persistent scale is set (via resize), apply it to the newly created frames
+
         if getattr(self, 'scale_w', None) is not None and getattr(self, 'scale_h', None) is not None:
             for i in range(len(self.frames)):
                 self.frames[i] = transform.scale(self.frames[i], (self.scale_w, self.scale_h))
-            # keep rect dimensions in sync with drawn size
+
             if hasattr(self, 'rect'):
                 self.rect.w = self.scale_w
                 self.rect.h = self.scale_h
@@ -71,14 +71,12 @@ class AnimatedSprite(sprite.Sprite):
         window.blit(self.frames[self.frame_now], (self.rect.x, self.rect.y))
 
     def resize(self, w, h):
-        # remember the requested draw size so future change_animation calls
-        # will recreate frames at the source size and then scale them back
-        # to this size (prevents being overridden by change_animation).
+
         self.scale_w = w
         self.scale_h = h
         for i in range(len(self.frames)):
             self.frames[i] = transform.scale(self.frames[i], (w, h))
-        # update rect size used for positioning
+
         if hasattr(self, 'rect'):
             self.rect.w = w
             self.rect.h = h

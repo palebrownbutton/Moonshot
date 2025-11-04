@@ -548,7 +548,7 @@ while True:
 
                 if boss_archer is not None:
 
-                    boss_archer.update("Skeleton_Archer")
+                    boss_archer.update("Skeleton_Archer", knight)
                     if getattr(boss_archer, 'play_once_done', False) and getattr(boss_archer, 'attacking', False):
                         boss_archer.attacking = False
                         boss_archer.play_once_done = False
@@ -706,7 +706,7 @@ while True:
                     prev_x = arrow.rect.x
                     removed = arrow.update()
                     try:
-                        collided = arrow.rect.inflate(20, 20).colliderect(knight_hitbox)
+                        collided = arrow.get_hitbox().colliderect(knight_hitbox)
                         tunneled = (prev_x > knight_hitbox.right and arrow.rect.x < knight_hitbox.left) or (prev_x < knight_hitbox.left and arrow.rect.x > knight_hitbox.right)
                         if collided or tunneled:
 
@@ -797,7 +797,8 @@ while True:
                 if skeleton_boss_spawned or archer_boss_spawned:
                     skeleton_healthbars.clear()
                     archer_healthbars.clear()
-                    skeleton.clear()
+                    skeletons
+                    skeletons.clear()
                     archers.clear()
 
                 if not skeleton_boss_spawned and not archer_boss_spawned:
