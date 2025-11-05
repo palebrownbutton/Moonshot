@@ -3,17 +3,18 @@ import math
 
 class WavesText:
 
-    def __init__(self, image, position, duration=1000):
+    def __init__(self, text, font, color, position, duration=1000):
         
-        self.image = image
-        self.original_size = image.get_size()
+        self.text = text
+        self.font = font
+        self.color = color
         self.postion = position
         self.timer = 0
         self.duration = duration
         self.active = True
-        self.flash_duration = 100
 
-        self.flash_triggered = False
+        self.image = self.font.render(self.text, True, self.color)
+        self.original_size = self.image.get_size()
 
     def update(self, dt):
 

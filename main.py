@@ -1,6 +1,7 @@
 from pygame import *
 import random
 import math
+import json
 from AnimatedSprite import *
 from StillImage import StillImage
 from KnightMovement import Knight
@@ -147,21 +148,16 @@ except Exception:
 
 highscore_written = False
 
-wave1_text = image.load("wave1_text.png").convert_alpha()
-wave1_text = transform.scale(wave1_text, (700, 700))
-wave1_intro_effect = WavesText(wave1_text, (50, 90))
-wave1_intro_timer = 0
-wave1_intro_duration = 1000
-
-wave2_text = image.load("wave2_text.png").convert_alpha()
-wave2_text = transform.scale(wave2_text, (700, 700))
-wave2_intro_effect = WavesText(wave2_text, (50, 90))
-wave2_intro_timer = 0
-wave2_intro_duration = 1000
+font = font.Font(None, 300)
+wave_text = WavesText(f"Wave {wave}", font, (0, 0, 0), (50, 350))
+previous_wave = 0
+wave_display_time = 0
 
 paused_game = False
 esc_last = 0
 esc_delay = 150
+
+paused_time = 0
 
 while True:
 
@@ -171,10 +167,10 @@ while True:
 
     dt = clock.tick(60)
 
-    if is_home == True or StartScreen.instructions_open == True:
+    if is_home == True or StartScreen.instructions_open == True or StartScreen.quests_open == True:
 
         is_home = StartScreen.start_screen(window)
-        if is_home == False and StartScreen.instructions_open == False:
+        if is_home == False and StartScreen.instructions_open == False and StartScreen.quests_open == False:
             ignore_return = True
 
             now = time.get_ticks()
@@ -217,6 +213,7 @@ while True:
             
             if paused_game:
                 paused_game, is_home = StartScreen.pause_screen(window)
+                paused_time = time.get_ticks()
                 display.update()
                 clock.tick(60)
                 if is_home:
@@ -228,13 +225,15 @@ while True:
                     StartScreen.ignore_until = time.get_ticks() + 300
                     continue
 
+            if not mixer.music.get_busy():
+                mixer.music.set_volume(0.3)
+                mixer.music.play(-1)
+
+            current_time = time.get_ticks()
+
             if not paused_game:
 
-                if not mixer.music.get_busy():
-                    mixer.music.set_volume(0.3)
-                    mixer.music.play(-1)
-
-                current_time = time.get_ticks()
+                current_time = time.get_ticks() - paused_time
 
                 if current_time - heart_spawn_time > 40000 and len(hearts) < 5:
                     heart_spawn_time = current_time
@@ -316,11 +315,6 @@ while True:
                                     scorenum += 100
                                     skeleton.die("Skeleton_Spearman")
 
-                    if getattr(knight, 'play_once_done', False) and getattr(knight, 'attacking', False):
-                        knight.damage_dealt = False
-                        knight.attacking = False
-                        knight.play_once_done = False
-
                 prev_space = current_space
 
                 if not getattr(knight, 'dead', False) and pressed_keys[K_UP] and knight.on_ground:
@@ -355,15 +349,21 @@ while True:
 
                 background.draw(window)
 
-                if wave1_intro_effect.active and wave == 1:
+                if scorenum >= previous_wave + 1000:
 
-                    wave1_intro_effect.update(dt)
-                    wave1_intro_effect.draw(window)
+                    wave += 1
+                    previous_wave = scorenum
+                    wave_text = WavesText(f"Wave {wave}", font, (0, 0, 0), (50, 350))
+                    wave_display_time = time.get_ticks()
+                
+                elif scorenum == 0:
 
-                if wave2_intro_effect.active and wave == 2:
+                    wave_text.update(dt)
+                    wave_text.draw(window)
 
-                    wave2_intro_effect.update(dt)
-                    wave2_intro_effect.draw(window)
+                if time.get_ticks() - wave_display_time < 2000:
+                    wave_text.update(dt)
+                    wave_text.draw(window)
             
                 if archers_active:
                     for archer in archers:
@@ -387,6 +387,7 @@ while True:
                         if knight_hitbox.colliderect(archer.get_hitbox()) and getattr(knight, 'attacking', True) and not knight.damage_dealt:
                             
                             archer.hp -= 20 
+                            knight.damge_dealt = True
                             if archer.hp <= 0:
                                 scorenum += 250
                                 archer.die("Skeleton_Archer")
@@ -430,8 +431,8 @@ while True:
                 knight.draw(window)
                 lives_image.draw(window)
                 scorepic.draw(window)
-                font.rendered_score = scorenumtxt.render(f"{scorenum}", True, (3, 41, 153))
-                window.blit(font.rendered_score, (135, 53 ))
+                rendered_score = scorenumtxt.render(f"{scorenum}", True, (3, 41, 153))
+                window.blit(rendered_score, (135, 53 ))
 
                 for arrow in arrows:
                     prev_x = arrow.rect.x
@@ -586,7 +587,13 @@ while True:
                     if is_home != None and not is_home:
                         game_reset()
 
+                if getattr(knight, 'play_once_done', False) and getattr(knight, 'attacking', False):
+                        knight.damage_dealt = False
+                        knight.attacking = False
+                        knight.play_once_done = False
+
                 if len(skeletons) == 0:
+                    skeleton_healthbars.clear()
                     live_skeletons = max_skeletons
                     for i in range(max_skeletons):
                         skeleton = Skeleton("Skeleton_Spearman/Idle.png", -200, 590, 128, 128, "Skeleton_Spearman")
@@ -605,6 +612,7 @@ while True:
                         break
 
                 if len(archers) == 0:
+                    archer_healthbars.clear()
                     archer = Archer("Skeleton_Archer/Idle.png", -200, 590, 128, 128, "Skeleton_Archer")
                     archer.spawn("Skeleton_Archer", 65 * wave)
                     archers.append(archer)

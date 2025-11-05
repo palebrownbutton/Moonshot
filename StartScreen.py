@@ -2,6 +2,7 @@ from pygame import *
 from AnimatedSprite import *
 from StillImage import StillImage
 import time as pytime
+import json
 
 font.init()
 
@@ -25,8 +26,9 @@ class Buttons():
             ghost_image.set_alpha(30)
             window.blit(ghost_image, (self.rect.x, self.rect.y))
 
-play = Buttons(100, 200, 600, 600, "start_button.png", "play")
-instructions_button = Buttons(100, 380, 600, 600, "instructions_button.png", "instructions")
+play = Buttons(120, 170, 550, 550, "start_button.png", "play")
+instructions_button = Buttons(100, 430, 600, 600, "instructions_button.png", "instructions")
+view_quests = Buttons(100, 300, 600, 600, "view_quests_button.png", "view_quests")
 background = StillImage(0, 0, 800, 800, "select_background.png")
 
 text1 = font.SysFont("Arial", 50)
@@ -34,7 +36,7 @@ font.rendered_text = text1.render("Welcome to Bones and Blades!", True, (255, 25
 text2 = font.SysFont("Arial", 30)
 font.rendered_subtext = text2.render("By Simona", True, (255, 255, 255))
 
-logo = StillImage(303, 210, 200, 200, "Bones and Blades Logo.png")
+logo = StillImage(303, 160, 200, 200, "Bones and Blades Logo.png")
 
 is_selected = "play"
 last_move = 0
@@ -45,7 +47,7 @@ ignore_return_local = False
 ignore_until = 0
 
 def start_screen(window):
-    global is_selected, move_delay, last_move, instructions_open, ignore_return_local
+    global is_selected, move_delay, last_move, instructions_open, ignore_return_local, quests_open
 
     pressed = key.get_pressed()
     now_time = time.get_ticks()
@@ -53,8 +55,9 @@ def start_screen(window):
         background.draw(window)
         play.draw(window, is_selected)
         instructions_button.draw(window, is_selected)
-        window.blit(font.rendered_text, (120, 100))
-        window.blit(font.rendered_subtext, (340, 160))
+        view_quests.draw(window, is_selected)
+        window.blit(font.rendered_text, (120, 50))
+        window.blit(font.rendered_subtext, (340, 110))
         logo.draw(window)
         return True
 
@@ -62,34 +65,40 @@ def start_screen(window):
         background.draw(window)
         play.draw(window, is_selected)
         instructions_button.draw(window, is_selected)
-        window.blit(font.rendered_text, (120, 100))
-        window.blit(font.rendered_subtext, (340, 160))
+        view_quests.draw(window, is_selected)
+        window.blit(font.rendered_text, (120, 50))
+        window.blit(font.rendered_subtext, (340, 110))
         logo.draw(window)
         if pressed[K_RETURN]:
             return True
         else:
             ignore_return_local = False
 
-    if instructions_open == False:
+    if instructions_open == False and quests_open == False:
 
         background.draw(window)
         play.draw(window, is_selected)
         instructions_button.draw(window, is_selected)
+        view_quests.draw(window, is_selected)
         
-        window.blit(font.rendered_text, (120, 100))
-        window.blit(font.rendered_subtext, (340, 160))
+        window.blit(font.rendered_text, (120, 50))
+        window.blit(font.rendered_subtext, (340, 110))
         logo.draw(window)
 
         pressed = key.get_pressed()
         now = time.get_ticks()
         if pressed[K_UP] and now - last_move >= move_delay:
             if is_selected == "instructions":
+                is_selected = "view_quests"
+            elif is_selected == "view_quests":
                 is_selected = "play"
             else:
                 is_selected = "instructions"
             last_move = now
         elif pressed[K_DOWN] and now - last_move >= move_delay:
             if is_selected == "play":
+                is_selected = "view_quests"
+            elif is_selected == "view_quests":
                 is_selected = "instructions"
             else:
                 is_selected = "play"
@@ -98,11 +107,15 @@ def start_screen(window):
         if pressed[K_RETURN]:
             if is_selected == "play":
                 return False
-            else:
+            elif is_selected == "instructions":
                 instructions_open = instructions_menu(window)
+            else:
+                quests_open = quests_menu(window)
 
-    else:
+    elif instructions_open == True:
         instructions_menu(window)
+    else:
+        quests_menu(window)
     
     return True
 
@@ -137,6 +150,24 @@ def instructions_menu(window):
 
     return True
 
+quests_open = False
+with open ("quest_list.json", "r") as file:
+        quest_data = json.load(file)
+quest_title = quest_data[0]["title"]
+quest_title_txt = font.SysFont(None, 50)
+font.rendered_quest_title = quest_title_txt.render(quest_title, True, (255, 255, 255))
+
+quest_list_word_text = font.SysFont(None, 100)
+font.rendered_quest_list_word = quest_list_word_text.render("Quests:", True, (255, 255, 255))
+
+def quests_menu(window):
+
+    background.draw(window)
+    window.blit(font.rendered_quest_list_word, (100, 100))
+    window.blit(font.rendered_quest_title, (150, 200))
+
+    return True
+
 playAgian = Buttons(100, 200, 600, 600, "play_again_button.png", "playAgain")
 home = Buttons(100, 380, 600, 600, "home_button.png", "home")
 game_over_txt = font.SysFont("Arial", 150)
@@ -151,11 +182,16 @@ font.rendered_highscore = highscore_text.render(f"High Score: {highscore}", True
 
 pause_box = StillImage(-5, -30, 800, 900, "pause_box.png")
 continue_gameplay = Buttons(200, 130, 400, 400, "continue_button.png", "continue_gameplay")
-view_quests = Buttons(200, 220, 400, 400, "view_quests_button.png", "view_quests")
+# view_quests = Buttons(200, 220, 400, 400, "view_quests_button.png", "view_quests")
 exit_gameplay = Buttons(200, 310, 400, 400, "exit_gameplay_button.png", "exit_gameplay")
 
 def pause_screen(window):
     global is_selected, last_move, move_delay, home
+
+    view_quests.rect.x = 200
+    view_quests.rect.y = 220
+    view_quests.rect.w = 400
+    view_quests.rect.h = 400
 
     if is_selected not in ("continue_gameplay", "view_quests", "exit_gameplay"):
         is_selected = "continue_gameplay"
