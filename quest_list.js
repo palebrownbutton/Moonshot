@@ -12,3 +12,15 @@ const quest1 = {
     }
 
 }
+
+const quest2 = {
+
+    id: 2,
+    title: "Kill 3 Archers",
+    isCompleted: false,
+    objectives: {
+        archersDefeated: 0,
+        requiredArchers: 0,
+    }
+
+}
