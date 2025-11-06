@@ -1,6 +1,7 @@
 from pygame import *
 from AnimatedSprite import *
 from StillImage import StillImage
+from QuestReader import quest_list
 import time as pytime
 import json
 
@@ -45,6 +46,8 @@ move_delay = 150
 instructions_open = False
 ignore_return_local = False
 ignore_until = 0
+
+quests_open = False
 
 def start_screen(window):
     global is_selected, move_delay, last_move, instructions_open, ignore_return_local, quests_open
@@ -150,21 +153,60 @@ def instructions_menu(window):
 
     return True
 
-quests_open = False
-with open ("quest_list.json", "r") as file:
-        quest_data = json.load(file)
-quest_title = quest_data[0]["title"]
-quest_title_txt = font.SysFont(None, 50)
-font.rendered_quest_title = quest_title_txt.render(quest_title, True, (255, 255, 255))
+quests = quest_list()
+
+quest_titles = []
+quest_details = []
+rewards_gain = []
+
+for i in quests:
+
+    title_font = font.SysFont(None, 50)
+    detial_font = font.SysFont(None, 30)
+    rendered_quest_title = title_font.render(quests[i]["title"], True, (255, 255, 255))
+    rendered_quest_detail = detial_font.render(quests[i]["details"], True, (200, 200, 200))
+    quest_titles.append(rendered_quest_title)
+    quest_details.append(rendered_quest_detail)
+
+    rewards_font = font.SysFont(None, 50)
+    xp_amount = quests[i]["reward"]["xp"]
+    rendered_quest_rewards = rewards_font.render(f"{xp_amount} XP", True, (212, 148, 11))
+    rewards_gain.append(rendered_quest_rewards)
 
 quest_list_word_text = font.SysFont(None, 100)
 font.rendered_quest_list_word = quest_list_word_text.render("Quests:", True, (255, 255, 255))
 
+quests_boxes = []
+for i in range(len(quests)):
+
+    box = Rect(150, 110 + (i * 80), 630, 80)
+    quests_boxes.append(box)
+
 def quests_menu(window):
+    global instructions_open, ignore_return_local, ignore_until, quests_open
+
+    mouse_x, mouse_y = mouse.get_pos()
 
     background.draw(window)
-    window.blit(font.rendered_quest_list_word, (100, 100))
-    window.blit(font.rendered_quest_title, (150, 200))
+    window.blit(font.rendered_quest_list_word, (150, 20))
+    
+    for i in range(len(quest_titles)):
+
+        window.blit(quest_titles[i], (155, 120 + (80 * i)))
+        window.blit(quest_details[i], (170, 160 + (80 * i)))
+        window.blit(rewards_gain[i], (650, 135 + (80 * i)))
+
+    for box in quests_boxes:
+        
+        draw.rect(window, (135, 84, 3), box, width=2)
+
+    house_button.draw(window)
+
+    if (mouse_x >= house_button.rect.x and mouse_x <= house_button.rect.x + house_button.rect.width and mouse_y >= house_button.rect.y and mouse_y <= house_button.rect.y + house_button.rect.height):
+        if mouse.get_pressed()[0]:
+            quests_open = False
+            ignore_return_local = True
+            ignore_until = time.get_ticks() + 300
 
     return True
 

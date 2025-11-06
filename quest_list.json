@@ -1,11 +1,12 @@
 [
   {
     "id": 1,
-    "title": "Kill 10 Skeletons",
+    "title": "First Blood",
+    "details": "Defeat you first enemy",
     "isCompleted": false,
     "objectives": {
       "skeletonsDefeated": 0,
-      "requiredSkeletons": 0
+      "requiredSkeletons": 1
     },
     "reward": {
       "xp": 200
@@ -13,11 +14,108 @@
   },
   {
     "id": 2,
-    "title": "Kill 3 Archers",
+    "title": "Bone Collector",
+    "details": "Kill 10 Spearmen",
     "isCompleted": false,
     "objectives": {
-      "archersDefeated": 0,
-      "requiredArchers": 0
+      "skeletonsDefeated": 0,
+      "requiredSkeletons": 10
+    },
+    "reward": {
+        "xp": 400
+    }
+  },
+  {
+    "id": 3,
+    "title": "One Less Eye in The Sky",
+    "details": "Kill your first archer",
+    "isCompleted": false,
+    "objectives": {
+        "archersDefeated": 0,
+        "requiredArchers": 1
+    },
+    "reward": {
+        "xp": 250
+    }
+  },
+  {
+    "id": 4,
+    "title": "Silent Arrow",
+    "details": "Kill 5 archers",
+    "isCompleted": false,
+    "objectives": {
+        "archersDefeated": 0,
+        "requiredArchers": 5
+    },
+    "reward": {
+        "xp": 450
+    }
+  },
+  {
+    "id": 5,
+    "title": "Left Side Sweep",
+    "details": "Kill 10 enemies that spawn from the left",
+    "isCompleted": false,
+    "objectives": {
+        "leftsDefeated": 0,
+        "requiredLeft": 10
+    },
+    "reward": {
+        "xp": 300
+    }
+  },
+  {
+    "id": 6,
+    "title": "Right Side Rampage",
+    "details": "Kill 10 enemies that spawn from the right",
+    "isCompleted": false,
+    "objectives": {
+        "rightDefeated": 0,
+        "requiredRight": 10
+    },
+    "reward": {
+        "xp": 300
+    }
+  },
+  {
+    "id": 7,
+    "title": "Wave Rider",
+    "details": "Reach wave 3",
+    "isCompleted": false,
+    "objectives": {
+        "wavesDeafeated": 0,
+        "requiredWaves": 3
+    },
+    "reward": {
+        "xp": 150
+    }
+  },
+  {
+    "id": 8,
+    "title": "Skeleton Slayer",
+    "details": "Kill only skeletons for one full wave",
+    "isCompleted": false,
+    "objectives": {
+        "skeletonsDefeated": 0,
+        "archersDefeated": 0,
+        "requiredSkeletons": 0
+    },
+    "reward": {
+        "xp": 140
+    }
+  },
+  {
+    "id": 9,
+    "title": "Archer Annihilator",
+    "details": "Kill only archers for one full wave",
+    "isCompleted": false,
+    "objectives": {
+        "archersDefeated": 0,
+        "skeletonsDefeated": 0,
+        "requiredSkeletons": 0
+    },
+    "reward": {
+        "xp": 140
     }
   }
 ]
