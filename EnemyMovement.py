@@ -2,8 +2,9 @@ from pygame import *
 from AnimatedSprite import *
 from StillImage import StillImage
 import random
-import math
+import json
 import math as pymath
+from QuestReader import quest_list2
 
 arrows = []
 can_shoot = False
@@ -61,9 +62,7 @@ class Enemy(AnimatedSprite):
             return
 
     def get_hitbox(self):
-        """Return a consistent 128x128 hitbox for small enemies, centered
-        horizontally on the enemy's rect and aligned to its top.
-        """
+
         hb_w = 128
         hb_h = 128
         hb_x = self.rect.centerx - hb_w // 2
@@ -74,6 +73,18 @@ class Enemy(AnimatedSprite):
 
         if getattr(self, 'dead', False):
             return
+        
+        if enemy_type == "Skeleton_Spearman":
+
+            quests = quest_list2()
+
+            for quest in quests:
+                if quest["id"] == 1:
+                    quest["isCompleted"] = True
+                    break
+            
+            with open ("quest_list.json", "w") as file:
+                json.dump(quests, file, indent=2)
 
         self.hp = max(0, self.hp)
 

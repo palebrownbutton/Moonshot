@@ -1,7 +1,7 @@
 from pygame import *
 import json
 
-def quest_list():
+def quest_list1():
 
     with open ("quest_list.json", "r") as file:
 
@@ -18,3 +18,9 @@ def quest_list():
         for quest in quest_data
     }
     return quests
+
+def quest_list2():
+
+    with open ("quest_list.json", "r") as file:
+
+        return json.load(file)

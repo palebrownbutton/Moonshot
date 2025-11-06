@@ -1,7 +1,7 @@
 from pygame import *
 from AnimatedSprite import *
 from StillImage import StillImage
-from QuestReader import quest_list
+from QuestReader import quest_list1
 import time as pytime
 import json
 
@@ -153,7 +153,7 @@ def instructions_menu(window):
 
     return True
 
-quests = quest_list()
+quests = quest_list1()
 
 quest_titles = []
 quest_details = []
@@ -182,31 +182,51 @@ for i in range(len(quests)):
     box = Rect(150, 110 + (i * 80), 630, 80)
     quests_boxes.append(box)
 
+scroll_y = 0
+scroll_speed = 20
+TOP_LIMIT = 80
+
 def quests_menu(window):
-    global instructions_open, ignore_return_local, ignore_until, quests_open
+    global instructions_open, ignore_return_local, ignore_until, quests_open, scroll_y, scroll_speed
 
     mouse_x, mouse_y = mouse.get_pos()
 
+    max_scroll = (len(quests) * 80) - 650
+
     background.draw(window)
-    window.blit(font.rendered_quest_list_word, (150, 20))
     
     for i in range(len(quest_titles)):
 
-        window.blit(quest_titles[i], (155, 120 + (80 * i)))
-        window.blit(quest_details[i], (170, 160 + (80 * i)))
-        window.blit(rewards_gain[i], (650, 135 + (80 * i)))
+        y_offset = 120 + (80 * i) + scroll_y
+
+        if y_offset > TOP_LIMIT:
+            window.blit(quest_titles[i], (155, y_offset))
+            window.blit(quest_details[i], (170, y_offset + 40))
+            window.blit(rewards_gain[i], (650, y_offset + 15))
 
     for box in quests_boxes:
         
-        draw.rect(window, (135, 84, 3), box, width=2)
+        adjusted_box = box.move(0, scroll_y)
+
+        if adjusted_box.y > TOP_LIMIT:
+            draw.rect(window, (135, 84, 3), adjusted_box, width=2)
 
     house_button.draw(window)
+    window.blit(font.rendered_quest_list_word, (150, 20))
 
     if (mouse_x >= house_button.rect.x and mouse_x <= house_button.rect.x + house_button.rect.width and mouse_y >= house_button.rect.y and mouse_y <= house_button.rect.y + house_button.rect.height):
         if mouse.get_pressed()[0]:
             quests_open = False
             ignore_return_local = True
             ignore_until = time.get_ticks() + 300
+
+    for e in event.get():
+        if e.type == QUIT:
+            exit()
+
+        elif e.type == MOUSEWHEEL:
+            scroll_y += e.y * scroll_speed
+            scroll_y = max(min(scroll_y, 0), -max_scroll)
 
     return True
 
