@@ -387,7 +387,7 @@ while True:
                         if knight_hitbox.colliderect(archer.get_hitbox()) and getattr(knight, 'attacking', True) and not knight.damage_dealt:
                             
                             archer.hp -= 20 
-                            knight.damge_dealt = True
+                            knight.damage_dealt = True
                             if archer.hp <= 0:
                                 scorenum += 250
                                 archer.die("Skeleton_Archer")

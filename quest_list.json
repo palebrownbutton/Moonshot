@@ -97,7 +97,7 @@
     "isCompleted": false,
     "objectives": {
       "skeletonsDefeated": 0,
-      "archersDefeated": 0,
+      "archersDefeated": 8,
       "requiredSkeletons": 0
     },
     "reward": {
@@ -110,7 +110,7 @@
     "details": "Kill only archers for one full wave",
     "isCompleted": false,
     "objectives": {
-      "archersDefeated": 0,
+      "archersDefeated": 8,
       "skeletonsDefeated": 0,
       "requiredSkeletons": 0
     },

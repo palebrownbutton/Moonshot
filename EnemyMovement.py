@@ -4,7 +4,7 @@ from StillImage import StillImage
 import random
 import json
 import math as pymath
-from QuestReader import quest_list2
+from QuestReader import *
 
 arrows = []
 can_shoot = False
@@ -74,17 +74,7 @@ class Enemy(AnimatedSprite):
         if getattr(self, 'dead', False):
             return
         
-        if enemy_type == "Skeleton_Spearman":
-
-            quests = quest_list2()
-
-            for quest in quests:
-                if quest["id"] == 1:
-                    quest["isCompleted"] = True
-                    break
-            
-            with open ("quest_list.json", "w") as file:
-                json.dump(quests, file, indent=2)
+        quest_update(enemy_type)
 
         self.hp = max(0, self.hp)
 
