@@ -313,7 +313,7 @@ while True:
 
                                 if skeleton.hp <= 0:
                                     scorenum += 100
-                                    skeleton.die("Skeleton_Spearman")
+                                    skeleton.die("Skeleton_Spearman", wave)
 
                 prev_space = current_space
 
@@ -352,6 +352,7 @@ while True:
                 if scorenum >= previous_wave + 1000:
 
                     wave += 1
+                    quest_update(None, None, wave)
                     previous_wave = scorenum
                     wave_text = WavesText(f"Wave {wave}", font, (0, 0, 0), (50, 350))
                     wave_display_time = time.get_ticks()
@@ -390,7 +391,7 @@ while True:
                             knight.damage_dealt = True
                             if archer.hp <= 0:
                                 scorenum += 250
-                                archer.die("Skeleton_Archer")
+                                archer.die("Skeleton_Archer", wave)
 
                 COLLECTIBLE_LIFETIME = 10000 
                 for item in collectibles[:]:

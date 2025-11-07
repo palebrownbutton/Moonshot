@@ -25,7 +25,7 @@ def quest_list2():
 
         return json.load(file)
 
-def quest_update(enemy_type):
+def quest_update(enemy_type, direction, wave):
 
     quests = quest_list2()
 
@@ -40,7 +40,6 @@ def quest_update(enemy_type):
 
                 if quest["objectives"]["skeletonsDefeated"] >= quest["objectives"]["requiredSkeletons"]:
                     quest["isCompleted"] = True
-                break
 
         if enemy_type == "Skeleton_Archer":
             
@@ -50,6 +49,36 @@ def quest_update(enemy_type):
             if quest["id"] in [3, 4]:
 
                 if quest["objectives"]["archersDefeated"] >= quest["objectives"]["requiredArchers"]:
+                    quest["isCompleted"] = True
+
+        if direction == "left":
+
+            if "leftDefeated" in quest["objectives"]:
+                quest["objectives"]["leftDefeated"] += 1
+
+            if quest["id"] in [5]:
+
+                if quest["objectives"]["leftDefeated"] >= quest["objectives"]["requiredLeft"]:
+                    quest["isCompleted"] = True
+
+        if direction == "right":
+
+            if "rightDefeated" in quest["objectives"]:
+                quest["objectives"]["rightDefeated"] += 1
+
+            if quest["id"] in [6]:
+
+                if quest["objectives"]["rightDefeated"] >= quest["objectives"]["requiredRight"]:
+                    quest["isCompleted"] = True
+
+        if wave is not None:
+
+            if "wavesDefeated" in quest["objectives"]:
+                quest["objectives"]["wavesDefeated"] += 1
+
+            if quest["id"] in [7]:
+
+                if quest["objectives"]["wavesDefeated"] > quest["objectives"]["requiredWaves"]:
                     quest["isCompleted"] = True
 
     with open ("quest_list.json", "w") as file:

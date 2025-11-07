@@ -57,7 +57,7 @@
     "details": "Kill 10 enemies that spawn from the left",
     "isCompleted": false,
     "objectives": {
-      "leftsDefeated": 0,
+      "leftDefeated": 0,
       "requiredLeft": 10
     },
     "reward": {
@@ -80,11 +80,11 @@
   {
     "id": 7,
     "title": "Wave Rider",
-    "details": "Reach wave 3",
+    "details": "Reach wave 2",
     "isCompleted": false,
     "objectives": {
-      "wavesDeafeated": 0,
-      "requiredWaves": 3
+      "wavesDefeated": 0,
+      "requiredWaves": 1
     },
     "reward": {
       "xp": 150
@@ -97,7 +97,7 @@
     "isCompleted": false,
     "objectives": {
       "skeletonsDefeated": 0,
-      "archersDefeated": 8,
+      "archersDefeated": 0,
       "requiredSkeletons": 0
     },
     "reward": {
@@ -110,7 +110,7 @@
     "details": "Kill only archers for one full wave",
     "isCompleted": false,
     "objectives": {
-      "archersDefeated": 8,
+      "archersDefeated": 0,
       "skeletonsDefeated": 0,
       "requiredSkeletons": 0
     },

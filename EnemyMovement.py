@@ -25,9 +25,11 @@ class Enemy(AnimatedSprite):
         if side == "left":
             self.rect.x = random.randint(-600, -200)
             self.direction = "right"
+            self.start_direction = "right"
         else:
             self.rect.x = random.randint(670, 1070)
             self.direction = "left"
+            self.start_direction = "left"
 
         self.hp = hp
         self.dead = False
@@ -69,12 +71,12 @@ class Enemy(AnimatedSprite):
         hb_y = self.rect.y
         return Rect(hb_x, hb_y, hb_w, hb_h)
 
-    def die(self, enemy_type):
+    def die(self, enemy_type, wave):
 
         if getattr(self, 'dead', False):
             return
         
-        quest_update(enemy_type)
+        quest_update(enemy_type, self.start_direction, None)
 
         self.hp = max(0, self.hp)
 
