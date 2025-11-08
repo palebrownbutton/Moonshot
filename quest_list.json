@@ -10,11 +10,11 @@
       "Kill 10 Spearmen"
     ],
     "isCompleted": [
-      true,
+      false,
       false
     ],
     "objectives": {
-      "skeletonsDefeated": 1,
+      "skeletonsDefeated": 0,
       "requiredSkeletons": [
         1,
         10

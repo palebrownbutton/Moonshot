@@ -181,6 +181,8 @@ for idx, (quest_id, quest) in enumerate(quests.items()):
 quest_list_word_text = font.SysFont(None, 100)
 font.rendered_quest_list_word = quest_list_word_text.render("Quests:", True, (255, 255, 255))
 
+padlock = StillImage(580, 20, 60, 60, "padlock.png")
+
 quests_boxes = []
 total_levels = sum(len(quest["title"]) for quest in quests.values())
 
@@ -200,22 +202,27 @@ def quests_menu(window):
 
     quest_title_mapping = []
     for idx, (quest_id, quest) in enumerate(quests.items()):
+        unlocked_level = quests_levels[idx].level
         for level_index in range(len(quest["title"])):
-            quest_title_mapping.append((quest_id, level_index))
+            quest_title_mapping.append((quest_id, level_index, level_index > unlocked_level))
 
-    max_scroll = max((len(quest_title_mapping)* 80 - (window.get_height() - TOP_LIMIT), 0))
+    max_scroll = max((len(quest_title_mapping)* 80 - (window.get_height() - TOP_LIMIT), 0)) + 50
 
     background.draw(window)
     house_button.draw(window)
     window.blit(font.rendered_quest_list_word, (150, 20))
     
-    for i, (quest_id, level_index) in enumerate(quest_title_mapping):
+    for i, (quest_id, level_index, is_locked) in enumerate(quest_title_mapping):
 
         y_offset = 120 + (80 * i) + scroll_y
-
+       
         quest = quests[quest_id]
 
         if y_offset > TOP_LIMIT:
+
+            if is_locked:
+                padlock.rect.y = y_offset
+                padlock.draw(window)
 
             title_font = font.SysFont(None, 50)
             detail_font = font.SysFont(None, 30)
