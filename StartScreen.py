@@ -1,7 +1,7 @@
 from pygame import *
 from AnimatedSprite import *
 from StillImage import StillImage
-from QuestReader import quest_list1
+from QuestReader import *
 import time as pytime
 import json
 
@@ -29,7 +29,7 @@ class Buttons():
 
 play = Buttons(120, 170, 550, 550, "start_button.png", "play")
 instructions_button = Buttons(100, 430, 600, 600, "instructions_button.png", "instructions")
-view_quests = Buttons(100, 300, 600, 600, "view_quests_button.png", "view_quests")
+start_view_quests = Buttons(100, 300, 600, 600, "view_quests_button.png", "view_quests")
 background = StillImage(0, 0, 800, 800, "select_background.png")
 
 text1 = font.SysFont("Arial", 50)
@@ -58,7 +58,7 @@ def start_screen(window):
         background.draw(window)
         play.draw(window, is_selected)
         instructions_button.draw(window, is_selected)
-        view_quests.draw(window, is_selected)
+        start_view_quests.draw(window, is_selected)
         window.blit(font.rendered_text, (120, 50))
         window.blit(font.rendered_subtext, (340, 110))
         logo.draw(window)
@@ -68,7 +68,7 @@ def start_screen(window):
         background.draw(window)
         play.draw(window, is_selected)
         instructions_button.draw(window, is_selected)
-        view_quests.draw(window, is_selected)
+        start_view_quests.draw(window, is_selected)
         window.blit(font.rendered_text, (120, 50))
         window.blit(font.rendered_subtext, (340, 110))
         logo.draw(window)
@@ -82,7 +82,7 @@ def start_screen(window):
         background.draw(window)
         play.draw(window, is_selected)
         instructions_button.draw(window, is_selected)
-        view_quests.draw(window, is_selected)
+        start_view_quests.draw(window, is_selected)
         
         window.blit(font.rendered_text, (120, 50))
         window.blit(font.rendered_subtext, (340, 110))
@@ -153,31 +153,38 @@ def instructions_menu(window):
 
     return True
 
-quests = quest_list1()
-
 quest_titles = []
 quest_details = []
 rewards_gain = []
 
-for i in quests:
+quest_title_mapping = []
+for idx, (quest_id, quest) in enumerate(quests.items()):
 
-    title_font = font.SysFont(None, 50)
-    detial_font = font.SysFont(None, 30)
-    rendered_quest_title = title_font.render(quests[i]["title"], True, (255, 255, 255))
-    rendered_quest_detail = detial_font.render(quests[i]["details"], True, (200, 200, 200))
-    quest_titles.append(rendered_quest_title)
-    quest_details.append(rendered_quest_detail)
+    for level_index in range(len(quest["title"])):
+        if level_index < len(quest["title"]):
+            quest_title_mapping.append((quest_id, level_index))
 
-    rewards_font = font.SysFont(None, 50)
-    xp_amount = quests[i]["reward"]["xp"]
-    rendered_quest_rewards = rewards_font.render(f"{xp_amount} XP", True, (212, 148, 11))
-    rewards_gain.append(rendered_quest_rewards)
+        title_font = font.SysFont(None, 50)
+        detail_font = font.SysFont(None, 30)
+        rewards_font = font.SysFont(None, 50)
+
+        rendered_quest_title = title_font.render(quest["title"][level_index], True, (255, 255, 255))
+        rendered_quest_detail = detail_font.render(quest["details"][level_index], True, (200, 200, 200))
+        
+        xp_amount = quest["reward"]["xp"][level_index]
+        rendered_quest_rewards = rewards_font.render(f"{xp_amount} XP", True, (212, 148, 11))
+
+        quest_titles.append(rendered_quest_title)
+        quest_details.append(rendered_quest_detail)
+        rewards_gain.append(rendered_quest_rewards)
 
 quest_list_word_text = font.SysFont(None, 100)
 font.rendered_quest_list_word = quest_list_word_text.render("Quests:", True, (255, 255, 255))
 
 quests_boxes = []
-for i in range(len(quests)):
+total_levels = sum(len(quest["title"]) for quest in quests.values())
+
+for i in range(total_levels):
 
     box = Rect(150, 110 + (i * 80), 630, 80)
     quests_boxes.append(box)
@@ -191,29 +198,59 @@ def quests_menu(window):
 
     mouse_x, mouse_y = mouse.get_pos()
 
-    max_scroll = (len(quests) * 80) - 650
+    quest_title_mapping = []
+    for idx, (quest_id, quest) in enumerate(quests.items()):
+        for level_index in range(len(quest["title"])):
+            quest_title_mapping.append((quest_id, level_index))
+
+    max_scroll = max((len(quest_title_mapping)* 80 - (window.get_height() - TOP_LIMIT), 0))
 
     background.draw(window)
+    house_button.draw(window)
+    window.blit(font.rendered_quest_list_word, (150, 20))
     
-    for i in range(len(quest_titles)):
+    for i, (quest_id, level_index) in enumerate(quest_title_mapping):
 
         y_offset = 120 + (80 * i) + scroll_y
 
+        quest = quests[quest_id]
+
         if y_offset > TOP_LIMIT:
-            window.blit(quest_titles[i], (155, y_offset))
-            window.blit(quest_details[i], (170, y_offset + 40))
-            window.blit(rewards_gain[i], (650, y_offset + 15))
 
-    for box in quests_boxes:
-        
-        adjusted_box = box.move(0, scroll_y)
+            title_font = font.SysFont(None, 50)
+            detail_font = font.SysFont(None, 30)
+            rewards_font = font.SysFont(None, 50)
 
-        if adjusted_box.y > TOP_LIMIT:
+            rendered_quest_title = title_font.render(quest["title"][level_index], True, (255, 255, 255))
+            rendered_quest_detail = detail_font.render(quest["details"][level_index], True, (200, 200, 200))
+            
+            xp_amount = quest["reward"]["xp"][level_index]
+            rendered_quest_rewards = rewards_font.render(f"{xp_amount} XP", True, (212, 148, 11))
+
+            adjusted_box = Rect(150, y_offset - 10, 630, 80)
             draw.rect(window, (135, 84, 3), adjusted_box, width=2)
 
-    house_button.draw(window)
-    window.blit(font.rendered_quest_list_word, (150, 20))
+            if quest["isCompleted"][level_index]:
+                s = Surface((630, 80), SRCALPHA)
+                s.fill((58, 117, 6, 200))
+                window.blit(s, (adjusted_box.x, adjusted_box.y))
 
+            elif not quest["isCompleted"][level_index]:
+                first_incomplete = False
+                for li in range(len(quest["title"])):
+                    if not quest["isCompleted"][li]:
+                        if li == level_index:
+                            first_incomplete = True
+                        break
+                if first_incomplete:
+                    s = Surface((630, 80), SRCALPHA)
+                    s.fill((166, 41, 3, 100))
+                    window.blit(s, (adjusted_box.x, adjusted_box.y))
+
+            window.blit(rendered_quest_title, (155, y_offset))
+            window.blit(rendered_quest_detail, (170, y_offset + 40))
+            window.blit(rendered_quest_rewards, (650, y_offset + 15))
+    
     if (mouse_x >= house_button.rect.x and mouse_x <= house_button.rect.x + house_button.rect.width and mouse_y >= house_button.rect.y and mouse_y <= house_button.rect.y + house_button.rect.height):
         if mouse.get_pressed()[0]:
             quests_open = False
@@ -231,6 +268,7 @@ def quests_menu(window):
     return True
 
 playAgian = Buttons(100, 200, 600, 600, "play_again_button.png", "playAgain")
+
 home = Buttons(100, 380, 600, 600, "home_button.png", "home")
 game_over_txt = font.SysFont("Arial", 150)
 font.rendered_game_over = game_over_txt.render("Game Over...", True, (255, 0, 0))
@@ -244,23 +282,18 @@ font.rendered_highscore = highscore_text.render(f"High Score: {highscore}", True
 
 pause_box = StillImage(-5, -30, 800, 900, "pause_box.png")
 continue_gameplay = Buttons(200, 130, 400, 400, "continue_button.png", "continue_gameplay")
-# view_quests = Buttons(200, 220, 400, 400, "view_quests_button.png", "view_quests")
+pause_view_quests = Buttons(200, 220, 400, 400, "view_quests_button.png", "view_quests")
 exit_gameplay = Buttons(200, 310, 400, 400, "exit_gameplay_button.png", "exit_gameplay")
 
 def pause_screen(window):
     global is_selected, last_move, move_delay, home
-
-    view_quests.rect.x = 200
-    view_quests.rect.y = 220
-    view_quests.rect.w = 400
-    view_quests.rect.h = 400
 
     if is_selected not in ("continue_gameplay", "view_quests", "exit_gameplay"):
         is_selected = "continue_gameplay"
 
     pause_box.draw(window)
     continue_gameplay.draw(window, is_selected)
-    view_quests.draw(window, is_selected)
+    pause_view_quests.draw(window, is_selected)
     exit_gameplay.draw(window, is_selected)
 
     pressed = key.get_pressed()
