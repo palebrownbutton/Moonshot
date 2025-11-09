@@ -219,10 +219,6 @@
       false
     ],
     "objectives": {
-      "skeletonsDefeated": 0,
-      "archersDefeated": 0,
-      "requiredSkeletons": 0,
-      "wavesDefeated": 0,
       "requiredWaves": [
         1,
         3

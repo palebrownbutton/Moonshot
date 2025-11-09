@@ -20,6 +20,7 @@ clock = time.Clock()
 mixer.music.load("game_play.mp3")
 
 wave = 1
+new_wave = False
 
 knight = Knight("Knight_1/Idle.png", 350, 590, 128, 128, "Knight_1")
 knight.resize(200, 200)
@@ -313,7 +314,8 @@ while True:
 
                                 if skeleton.hp <= 0:
                                     scorenum += 100
-                                    skeleton.die("Skeleton_Spearman", wave)
+                                    skeleton.die("Skeleton_Spearman", new_wave)
+                                    new_wave = False
 
                 prev_space = current_space
 
@@ -352,7 +354,8 @@ while True:
                 if scorenum >= previous_wave + 1000:
 
                     wave += 1
-                    quest_update(None, None, wave)
+                    new_wave = True
+                    quest_update(None, None, wave, 0, 0)
                     previous_wave = scorenum
                     wave_text = WavesText(f"Wave {wave}", font, (0, 0, 0), (50, 350))
                     wave_display_time = time.get_ticks()
@@ -391,7 +394,8 @@ while True:
                             knight.damage_dealt = True
                             if archer.hp <= 0:
                                 scorenum += 250
-                                archer.die("Skeleton_Archer", wave)
+                                archer.die("Skeleton_Archer", new_wave)
+                                new_wave = False
 
                 COLLECTIBLE_LIFETIME = 10000 
                 for item in collectibles[:]:

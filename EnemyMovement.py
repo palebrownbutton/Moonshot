@@ -9,6 +9,9 @@ from QuestReader import *
 arrows = []
 can_shoot = False
 
+current_archers = 0
+current_skeletons = 0
+
 class Enemy(AnimatedSprite):
 
     def __init__(self, sprite_sheet, x, y, w, h, enemy_type, hp):
@@ -71,13 +74,22 @@ class Enemy(AnimatedSprite):
         hb_y = self.rect.y
         return Rect(hb_x, hb_y, hb_w, hb_h)
 
-    def die(self, enemy_type, wave):
+    def die(self, enemy_type, new_wave):
+        global current_archers, current_skeletons
 
         if getattr(self, 'dead', False):
             return
         
-        quest_update(enemy_type, self.start_direction, None)
+        if new_wave == True:
+            current_archers = 0
+            current_skeletons = 0
+        if enemy_type == "Skeleton_Archer":
+            current_archers += 1
+        else:
+            current_skeletons += 1
 
+        quest_update(enemy_type, self.start_direction, None, current_archers, current_skeletons)
+        
         self.hp = max(0, self.hp)
 
         self.dead = True

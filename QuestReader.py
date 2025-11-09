@@ -45,8 +45,11 @@ quests_levels = [QuestLevel(qid) for qid in quests.keys()]
 for quest_id in quests.keys():
     quests_levels.append(QuestLevel(quest_id))
 
-def quest_update(enemy_type, direction, wave):
-    global quest, quests_levels
+skeleton_current_wave = 0
+archer_current_wave = 0
+
+def quest_update(enemy_type, direction, wave, current_archers, current_skeletons):
+    global quest, quests_levels, skeleton_current_wave, archer_current_wave
 
     quests = quest_list2()
 
@@ -77,7 +80,21 @@ def quest_update(enemy_type, direction, wave):
             quest["objectives"]["wavesDefeated"] += 1
             if quest["objectives"]["wavesDefeated"] > quest["objectives"]["requiredWaves"][quest_level.level]:
                 quest["isCompleted"][quest_level.level] = True
-            
+
+        if wave is not None and current_archers == 0:
+            archer_current_wave += 1
+
+        if "requiredWaves" in quest["objectives"] and quest["id"] == 6:
+            if current_archers == 0 and archer_current_wave > quest["objectives"]["requiredWaves"][quest_level.level]:
+                quest["isCompleted"][quest_level.level] = True
+
+        if wave is not None and current_skeletons == 0:
+            skeleton_current_wave += 1
+
+        if "requiredWaves" in quest["objectives"] and quest["id"] == 7:
+            if current_skeletons == 0 and skeleton_current_wave > quest["objectives"]["requiredWaves"][quest_level.level]:
+                quest["isCompleted"][quest_level.level] = True
+         
         quest_level.update(quest)
 
     with open ("quest_list.json", "w") as file:
