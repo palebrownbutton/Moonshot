@@ -202,7 +202,8 @@ def quests_menu(window):
 
     quest_title_mapping = []
     for idx, (quest_id, quest) in enumerate(quests.items()):
-        unlocked_level = quests_levels[idx].level
+        completed_levels = [i for i, done in enumerate(quest["isCompleted"]) if done]
+        unlocked_level = max(completed_levels, default=-1) + 1
         for level_index in range(len(quest["title"])):
             quest_title_mapping.append((quest_id, level_index, level_index > unlocked_level))
 
@@ -292,16 +293,19 @@ continue_gameplay = Buttons(200, 130, 400, 400, "continue_button.png", "continue
 pause_view_quests = Buttons(200, 220, 400, 400, "view_quests_button.png", "view_quests")
 exit_gameplay = Buttons(200, 310, 400, 400, "exit_gameplay_button.png", "exit_gameplay")
 
+view_quests = False
+
 def pause_screen(window):
-    global is_selected, last_move, move_delay, home
+    global is_selected, last_move, move_delay, home, scroll_y, view_quests
 
     if is_selected not in ("continue_gameplay", "view_quests", "exit_gameplay"):
         is_selected = "continue_gameplay"
 
     pause_box.draw(window)
-    continue_gameplay.draw(window, is_selected)
-    pause_view_quests.draw(window, is_selected)
-    exit_gameplay.draw(window, is_selected)
+    if not view_quests:
+        continue_gameplay.draw(window, is_selected)
+        pause_view_quests.draw(window, is_selected)
+        exit_gameplay.draw(window, is_selected)
 
     pressed = key.get_pressed()
     now = time.get_ticks()
@@ -336,10 +340,95 @@ def pause_screen(window):
             is_home = True
             is_selected = "play"
             pytime.sleep(0.2)
+
         else:
-            pass
-            # Add quests menu after creating quest log in javascript file seperate
-    
+
+            view_quests = True
+
+    if view_quests:
+
+        pause_box.draw(window)
+
+        scale_factor = 0.80
+        base_x = 145
+        base_y = 291
+        box_height = int(80 * scale_factor)
+        box_width = int(630 * scale_factor)
+        font_scale = int(50 * scale_factor)
+        detail_font_scale = int(30 * scale_factor)
+        rewards_font_scale = int(40 * scale_factor)
+
+        pause_TOP_LIMIT = 290
+        pause_BOTTOM_LIMIT = 525
+
+        quest_title_mapping = []
+        for idx, (quest_id, quest) in enumerate(quests.items()):
+            completed_levels = [i for i, done in enumerate(quest["isCompleted"]) if done]
+            unlocked_level = max(completed_levels, default=-1) + 1
+            for level_index in range(len(quest["title"])):
+                quest_title_mapping.append((quest_id, level_index, level_index > unlocked_level))
+
+        max_scroll = max((len(quest_title_mapping)* 80 - (window.get_height() - pause_TOP_LIMIT), 0)) + 50
+        
+        for i, (quest_id, level_index, is_locked) in enumerate(quest_title_mapping):
+
+            spacing = 10
+            y_offset = base_y + i * (box_height + spacing) + scroll_y
+        
+            quest = quests[quest_id]
+
+            adjusted_box = Rect(base_x, y_offset - 10, box_width, box_height)
+
+            if y_offset > pause_TOP_LIMIT and y_offset < pause_BOTTOM_LIMIT:
+
+                if is_locked:
+                    small_padlock = transform.scale(padlock.image, (int(60 * scale_factor), int(60 * scale_factor)))
+                    window.blit(small_padlock, (475, adjusted_box.y + 10))
+
+
+                title_font = font.SysFont(None, font_scale)
+                detail_font = font.SysFont(None, detail_font_scale)
+                rewards_font = font.SysFont(None, rewards_font_scale)
+
+                rendered_quest_title = title_font.render(quest["title"][level_index], True, (255, 255, 255))
+                rendered_quest_detail = detail_font.render(quest["details"][level_index], True, (200, 200, 200))
+                
+                xp_amount = quest["reward"]["xp"][level_index]
+                rendered_quest_rewards = rewards_font.render(f"{xp_amount} XP", True, (212, 148, 11))
+
+                if quest["isCompleted"][level_index]:
+                    s = Surface((box_width, box_height), SRCALPHA)
+                    s.fill((58, 117, 6, 200))
+                    window.blit(s, (adjusted_box.x, adjusted_box.y))
+
+                elif not quest["isCompleted"][level_index]:
+                    first_incomplete = False
+                    for li in range(len(quest["title"])):
+                        if not quest["isCompleted"][li]:
+                            if li == level_index:
+                                first_incomplete = True
+                            break
+                    if first_incomplete:
+                        s = Surface((box_width, box_height), SRCALPHA)
+                        s.fill((166, 41, 3, 100))
+                        window.blit(s, (adjusted_box.x, adjusted_box.y))
+
+                draw.rect(window, (135, 84, 3), adjusted_box, width=2)
+
+                window.blit(rendered_quest_title, (adjusted_box.x + 10, y_offset + 5))
+                window.blit(rendered_quest_detail, (adjusted_box.x + 15, y_offset + int(box_height / 2)))
+                window.blit(rendered_quest_rewards, (adjusted_box.x + box_width - 120, y_offset + 10))
+
+                
+
+        for e in event.get():
+            if e.type == QUIT:
+                exit()
+
+            elif e.type == MOUSEWHEEL:
+                scroll_y += e.y * scroll_speed
+                scroll_y = max(min(scroll_y, 0), -max_scroll)
+
     return paused_game, is_home
 
 def game_over(window):
