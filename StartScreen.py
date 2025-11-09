@@ -181,7 +181,7 @@ for idx, (quest_id, quest) in enumerate(quests.items()):
 quest_list_word_text = font.SysFont(None, 100)
 font.rendered_quest_list_word = quest_list_word_text.render("Quests:", True, (255, 255, 255))
 
-padlock = StillImage(580, 20, 60, 60, "padlock.png")
+padlock = StillImage(555, 20, 60, 60, "padlock.png")
 
 quests_boxes = []
 total_levels = sum(len(quest["title"]) for quest in quests.values())
@@ -257,7 +257,7 @@ def quests_menu(window):
 
             window.blit(rendered_quest_title, (155, y_offset))
             window.blit(rendered_quest_detail, (170, y_offset + 40))
-            window.blit(rendered_quest_rewards, (650, y_offset + 15))
+            window.blit(rendered_quest_rewards, (625, y_offset + 15))
     
     if (mouse_x >= house_button.rect.x and mouse_x <= house_button.rect.x + house_button.rect.width and mouse_y >= house_button.rect.y and mouse_y <= house_button.rect.y + house_button.rect.height):
         if mouse.get_pressed()[0]:
@@ -385,7 +385,6 @@ def pause_screen(window):
                     small_padlock = transform.scale(padlock.image, (int(60 * scale_factor), int(60 * scale_factor)))
                     window.blit(small_padlock, (475, adjusted_box.y + 10))
 
-
                 title_font = font.SysFont(None, font_scale)
                 detail_font = font.SysFont(None, detail_font_scale)
                 rewards_font = font.SysFont(None, rewards_font_scale)
@@ -419,8 +418,6 @@ def pause_screen(window):
                 window.blit(rendered_quest_detail, (adjusted_box.x + 15, y_offset + int(box_height / 2)))
                 window.blit(rendered_quest_rewards, (adjusted_box.x + box_width - 120, y_offset + 10))
 
-                
-
         for e in event.get():
             if e.type == QUIT:
                 exit()
@@ -428,6 +425,11 @@ def pause_screen(window):
             elif e.type == MOUSEWHEEL:
                 scroll_y += e.y * scroll_speed
                 scroll_y = max(min(scroll_y, 0), -max_scroll)
+            
+            elif e.type == KEYDOWN and e.key == K_ESCAPE:
+                view_quests = False     
+                is_selected = "continue_gameplay"
+                return True, False
 
     return paused_game, is_home
 
