@@ -278,6 +278,57 @@ class Arrows(StillImage):
         hb_y = self.rect.y
         return Rect(hb_x, hb_y, hb_w, hb_h)
     
+class Warrior(Enemy):
+
+    def __init__(self, sprite_sheet, x, y, w, h, enemy_type, hp=100):
+        super().__init__(sprite_sheet, x, y, w, h, enemy_type, hp)
+
+    def move(self, player_x, enemy_type):
+
+        if self.direction == "right" and not getattr(self, "attacking", False):
+            if player_x + 100 < self.rect.x:
+                self.direction = "left"
+                self.rect.x -= 2
+                if not getattr(self, 'attacking', False):
+                    try:
+                        self.change_animation(f"{enemy_type}/Run.png", 128, 128)
+                    except Exception:
+                        pass
+            else:
+                self.rect.x += 2
+                if not getattr(self, 'attacking', False):
+                    try:
+                        self.change_animation(f"{enemy_type}/Run.png", 128, 128)
+                    except Exception:
+                        pass
+        
+        if self.direction == "left" and not getattr(self, "attacking", False):
+
+            if player_x - 100 > self.rect.x:
+                self.direction = "right"
+                self.rect.x += 2
+                if not getattr(self, 'attacking', False):
+                    try:
+                        self.change_animation(f"{enemy_type}/Run.png", 128, 128)
+                    except Exception:
+                        pass
+            else:
+                self.rect.x -= 2
+                if not getattr(self, 'attacking', False):
+                    try:
+                        self.change_animation(f"{enemy_type}/Run.png", 128, 128)
+                    except Exception:
+                        pass
+
+    def attack(self, enemy_type):
+
+        self.attacking = True
+        attack_type = random.randint(1, 3)
+        try:
+            self.change_animation(f"{enemy_type}/Attack_{attack_type}.png", 128, 128, play_once=True)
+        except Exception:
+            pass
+    
 class Healthbars():
 
     def __init__(self, x, y, w, h):

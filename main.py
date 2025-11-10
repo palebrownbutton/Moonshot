@@ -48,6 +48,13 @@ for i in range(max_archers):
     archer.spawn("Skeleton_Archer", 65 * wave)
     archers.append(archer)
 
+warriors = []
+max_warriors = 3
+for i in range(max_warriors):
+    warrior = Warrior("Skeleton_Warrior/Idle.png", -200, 590, 128, 128, "Skeleton_Warrior")
+    warrior.spawn("Skeleton_Warrior", 70 * wave)
+    warriors.append(warrior)
+
 skeleton_healthbars = []
 for skeleton in skeletons:
     skeleton_healthbar = Healthbars(skeleton.rect.x + 75, skeleton.rect.y + 90, 50, 7)
@@ -57,6 +64,11 @@ archer_healthbars = []
 for archer in archers:
     archer_healthbar = Healthbars(archer.rect.x + 75, archer.rect.y + 90, 50, 7)
     archer_healthbars.append(archer_healthbar)
+
+warrior_healthbars = []
+for warrior in warriors:
+    warrior_healthbar = Healthbars(warrior.rect. x + 75, warrior.rect.y + 90, 50, 7)
+    warrior_healthbars.append(warrior_healthbar)
 
 archers_active = False
 
@@ -256,7 +268,7 @@ while True:
                         'spawn': current_time
                     })
 
-                if current_time - last_spawn_time > 20000 and len(skeletons) <= 6:
+                if current_time - last_spawn_time > 20000 and len(skeletons) <= 3 + wave:
                     last_spawn_time = current_time
                     live_skeletons += 1
                     max_skeletons += 1
@@ -268,7 +280,7 @@ while True:
                         else:
                             break
 
-                if current_time - archer_spawn_time > 45000 and len(archers) < 4:
+                if current_time - archer_spawn_time > 45000 and len(archers) < 1 + wave and wave >= 2:
                     archer_spawn_time = current_time
 
                     new_archer = Archer("Skeleton_Archer/Idle.png", -200, 590, 128, 128, "Skeleton_Archer")
@@ -364,11 +376,11 @@ while True:
                 background.draw(window)
 
                 if scorenum >= previous_wave + 1000:
-
+                    
                     wave += 1
                     new_wave = True
                     quest_update(None, None, wave, 0, 0, True)
-                    current_lives = True
+                    current_lives += 1000
                     previous_wave = scorenum
                     wave_text = WavesText(f"Wave {wave}", font, (0, 0, 0), (50, 350))
                     wave_display_time = time.get_ticks()
@@ -407,7 +419,7 @@ while True:
                             knight.damage_dealt = True
                             if archer.hp <= 0:
                                 scorenum += 250
-                                archer.die("Skeleton_Archer", new_wave)
+                                archer.die("Skeleton_Archer", new_wave, current_lives)
                                 new_wave = False
 
                 COLLECTIBLE_LIFETIME = 10000 
@@ -513,7 +525,7 @@ while True:
 
                 for skeleton in skeletons:
                     for skeleton_healthbar in skeleton_healthbars:
-                        skeleton_healthbar.update(skeleton.hp, skeleton.rect.x, skeleton.rect.y, 60)
+                        skeleton_healthbar.update(skeleton.hp, skeleton.rect.x, skeleton.rect.y, 60 * wave)
                         skeleton_healthbar.draw(window)
 
                 for skeleton in skeletons[:]:
@@ -533,9 +545,94 @@ while True:
 
                 for archer in archers:
                     for archer_healthbar in archer_healthbars:
-                        archer_healthbar.update(archer.hp, archer.rect.x, archer.rect.y, 80)
+                        archer_healthbar.update(archer.hp, archer.rect.x, archer.rect.y, 65 * wave)
                         archer_healthbar.draw(window)
 
+                for warrior in warriors:
+                    for warrior_healthbar in warrior_healthbars:
+                        warrior_healthbar.update(warrior.hp, warrior.rect.x, warrior.rect.y, 70 * wave)
+                        warrior_healthbar.draw(window)
+
+                for warrior in warriors:
+                    warrior.update("Skeleton_Warrior")
+                    warrior.draw(window)
+                    warrior.move(knight.rect.centerx, "Skeleton_Warrior")
+
+                    if warrior.rect.x < knight.rect.x:
+                        distance = (knight.rect.x - warrior.rect.x) - 50
+                    else:
+                        distance = warrior.rect.x - knight.rect.x
+
+                        if distance <= 80:
+
+                            if not getattr(warrior, "attacking", False):
+                                warrior.attack("Skeleton_Warrior")
+                            
+                            if getattr(warrior, 'attacking', False) and not getattr(warrior, 'play_once_done', False):
+                                if not getattr(knight, 'took_damage', False) and not getattr(knight, 'dead', False):
+
+                                    blocked = False
+                                    try:
+                                        if getattr(knight, 'defending', False):
+                                            if getattr(knight, 'direction', None) != getattr(warrior, 'direction', None):
+                                                blocked = True
+                                    except Exception:
+                                        blocked = False
+
+                                    if not blocked:
+
+                                        knight.hp = max(0, knight.hp - 5)
+                                        knight.took_damage = True
+                                        try:
+                                            knight.change_animation(f"{character}/Hurt.png", 128, 128, play_once=True)
+                                        except Exception:
+                                            pass
+                                        knight.resize(200, 200)
+
+                                        if knight.hp <= 0:
+                                            lives -= 1
+                                            try:
+                                                hearts.remove(hearts[-1])
+                                            except Exception:
+                                                pass
+                                            knight.hp = 100
+                                            if lives == 0:
+                                                knight.die(character)
+
+                                    else:
+                                        knight.took_damage = False
+
+                            if getattr(warrior, 'play_once_done', False):
+                                knight.took_damage = False
+                        
+                        else:
+                            warrior.move(knight.rect.centerx, "Skeleton_Warrior")
+
+                    if getattr(knight, 'dead', False) and getattr(knight, 'play_once_done', False):
+                        if not highscore_written:
+                            try:
+                                with open("highscore.txt", 'a') as file:
+                                    file.write("\n" + str(scorenum))
+                            except Exception:
+                                pass
+                            highscore_written = True
+                        ignore_return = True
+                        is_home = None
+                        StartScreen.ignore_return_local = True
+                        StartScreen.ignore_until = time.get_ticks() + 300
+                        is_home = StartScreen.game_over(window)
+                        if is_home != None and not is_home:
+                            game_reset()
+                        
+                    if knight_hitbox.colliderect(warrior.get_hitbox()) and getattr(knight, 'attacking', True) and not knight.damage_dealt:
+                        
+                        warrior.hp -= 20 
+                        knight.damage_dealt = True
+                        if warrior.hp <= 0:
+                            scorenum += 250
+                            warrior.die("Skeleton_Warrior", new_wave, current_lives)
+                            new_wave = False
+                    
                 for skeleton in skeletons:
                     
                     skeleton.update("Skeleton_Spearman")

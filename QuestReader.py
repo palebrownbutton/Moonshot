@@ -106,7 +106,7 @@ def quest_update(enemy_type, direction, wave, current_archers, current_skeletons
             if quest["objectives"]["requiredWaves"][quest_level.level] >= quest["objectives"]["wavesDefeated"]:
                 quest["isCompleted"][quest_level.level] = True
         elif hearts == True and quest["id"] == 9:
-            quest["objectives"]["wavesDefeated"][quest_level.level] = 0
+            quest["objectives"]["wavesDefeated"] = 0
 
         quest_level.update(quest)
 
