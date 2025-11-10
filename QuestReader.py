@@ -48,7 +48,7 @@ for quest_id in quests.keys():
 skeleton_current_wave = 0
 archer_current_wave = 0
 
-def quest_update(enemy_type, direction, wave, current_archers, current_skeletons):
+def quest_update(enemy_type, direction, wave, current_archers, current_skeletons, hearts):
     global quest, quests_levels, skeleton_current_wave, archer_current_wave
 
     quests = quest_list2()
@@ -66,20 +66,23 @@ def quest_update(enemy_type, direction, wave, current_archers, current_skeletons
             if quest["objectives"]["archersDefeated"] >= quest["objectives"]["requiredArchers"][quest_level.level]:
                 quest["isCompleted"][quest_level.level] = True
             
-        if direction == "left" and "leftDefeated" in quest["objectives"] and quest["id"] == 3:
+        if direction == "left" and "leftDefeated" in quest["objectives"]:
             quest["objectives"]["leftDefeated"] += 1
-            if quest["objectives"]["leftDefeated"] >= quest["objectives"]["requiredLeft"][quest_level.level]:
-                quest["isCompleted"][quest_level.level] = True
+            if quest["id"] == 3:
+                if quest["objectives"]["leftDefeated"] >= quest["objectives"]["requiredLeft"][quest_level.level]:
+                    quest["isCompleted"][quest_level.level] = True
 
-        if direction == "right" and "rightDefeated" in quest["objectives"] and quest["id"] == 4:
+        if direction == "right" and "rightDefeated" in quest["objectives"]:
             quest["objectives"]["rightDefeated"] += 1
-            if quest["objectives"]["rightDefeated"] >= quest["objectives"]["requiredRight"][quest_level.level]:
-                quest["isCompleted"][quest_level.level] = True
+            if quest["id"] == 4:
+                if quest["objectives"]["rightDefeated"] >= quest["objectives"]["requiredRight"][quest_level.level]:
+                    quest["isCompleted"][quest_level.level] = True
 
-        if wave is not None and "wavesDefeated" in quest["objectives"] and quest["id"] == 5:
+        if wave is not None and "wavesDefeated" in quest["objectives"]:
             quest["objectives"]["wavesDefeated"] += 1
-            if quest["objectives"]["wavesDefeated"] > quest["objectives"]["requiredWaves"][quest_level.level]:
-                quest["isCompleted"][quest_level.level] = True
+            if quest["id"] == 5:
+                if quest["objectives"]["wavesDefeated"] > quest["objectives"]["requiredWaves"][quest_level.level]:
+                    quest["isCompleted"][quest_level.level] = True
 
         if wave is not None and current_archers == 0:
             archer_current_wave += 1
@@ -94,7 +97,17 @@ def quest_update(enemy_type, direction, wave, current_archers, current_skeletons
         if "requiredWaves" in quest["objectives"] and quest["id"] == 7:
             if current_skeletons == 0 and skeleton_current_wave > quest["objectives"]["requiredWaves"][quest_level.level]:
                 quest["isCompleted"][quest_level.level] = True
-         
+
+        if "rightDefeated" in quest["objectives"] and "leftDefeated" in quest["objectives"] and quest["id"] == 8:
+            if quest["objectives"]["rightDefeated"] >= quest["objectives"]["requiredRight"][quest_level.level] and quest["objectives"]["leftDefeated"] >= quest["objectives"]["requiredLeft"][quest_level.level]:
+                    quest["isCompleted"][quest_level.level] = True
+
+        if hearts == False and quest["id"] == 9:
+            if quest["objectives"]["requiredWaves"][quest_level.level] >= quest["objectives"]["wavesDefeated"]:
+                quest["isCompleted"][quest_level.level] = True
+        elif hearts == True and quest["id"] == 9:
+            quest["objectives"]["wavesDefeated"][quest_level.level] = 0
+
         quest_level.update(quest)
 
     with open ("quest_list.json", "w") as file:

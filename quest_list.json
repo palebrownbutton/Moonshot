@@ -22,8 +22,8 @@
       "Kill 200 Spearmen"
     ],
     "isCompleted": [
-      false,
-      false,
+      true,
+      true,
       false,
       false,
       false,
@@ -32,7 +32,7 @@
       false
     ],
     "objectives": {
-      "skeletonsDefeated": 0,
+      "skeletonsDefeated": 17,
       "requiredSkeletons": [
         1,
         10,
@@ -126,11 +126,11 @@
       "Kill 50 enemies that spawn from the left"
     ],
     "isCompleted": [
-      false,
+      true,
       false
     ],
     "objectives": {
-      "leftDefeated": 0,
+      "leftDefeated": 10,
       "requiredLeft": [
         10,
         50
@@ -158,7 +158,7 @@
       false
     ],
     "objectives": {
-      "rightDefeated": 0,
+      "rightDefeated": 7,
       "requiredRight": [
         10,
         50
@@ -189,7 +189,7 @@
       false
     ],
     "objectives": {
-      "wavesDefeated": 0,
+      "wavesDefeated": 2,
       "requiredWaves": [
         3,
         10,
@@ -215,8 +215,8 @@
       "Kill only skeletons for 3 waves"
     ],
     "isCompleted": [
-      false,
-      false
+      true,
+      true
     ],
     "objectives": {
       "requiredWaves": [
@@ -242,14 +242,10 @@
       "Kill only archers for 3 waves"
     ],
     "isCompleted": [
-      false,
-      false
+      true,
+      true
     ],
     "objectives": {
-      "archersDefeated": 0,
-      "skeletonsDefeated": 0,
-      "requiredSkeletons": 0,
-      "wavesDefeated": 0,
       "requiredWaves": [
         1,
         3
@@ -273,12 +269,12 @@
       "Kill 15 enemies from each side in one run"
     ],
     "isCompleted": [
-      false,
+      true,
       false
     ],
     "objectives": {
-      "rightDefeated": 0,
-      "leftDefeated": 0,
+      "rightDefeated": 7,
+      "leftDefeated": 10,
       "requiredRight": [
         5,
         15
@@ -292,6 +288,34 @@
       "xp": [
         200,
         600
+      ]
+    }
+  },
+  {
+    "id": 9,
+    "title": [
+      "Untouched Fury",
+      "Flawless Onslaught"
+    ],
+    "details": [
+      "Beat 1 wave without loosing a heart",
+      "Beat 3 waves without loosing a heart"
+    ],
+    "isCompleted": [
+      true,
+      true
+    ],
+    "objectives": {
+      "wavesDefeated": 1,
+      "requiredWaves": [
+        1,
+        3
+      ]
+    },
+    "reward": {
+      "xp": [
+        600,
+        1500
       ]
     }
   }

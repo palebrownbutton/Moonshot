@@ -74,7 +74,7 @@ class Enemy(AnimatedSprite):
         hb_y = self.rect.y
         return Rect(hb_x, hb_y, hb_w, hb_h)
 
-    def die(self, enemy_type, new_wave):
+    def die(self, enemy_type, new_wave, current_lives):
         global current_archers, current_skeletons
 
         if getattr(self, 'dead', False):
@@ -88,7 +88,7 @@ class Enemy(AnimatedSprite):
         else:
             current_skeletons += 1
 
-        quest_update(enemy_type, self.start_direction, None, current_archers, current_skeletons)
+        quest_update(enemy_type, self.start_direction, None, current_archers, current_skeletons, current_lives)
         
         self.hp = max(0, self.hp)
 

@@ -21,6 +21,7 @@ mixer.music.load("game_play.mp3")
 
 wave = 1
 new_wave = False
+current_lives = False
 
 knight = Knight("Knight_1/Idle.png", 350, 590, 128, 128, "Knight_1")
 knight.resize(200, 200)
@@ -63,11 +64,15 @@ background = StillImage(0, 0, 800, 800, "background1.png")
 background_switched = False
 
 def game_reset():
-    global knight, character, skeletons, prev_space, prev_down, ignore_return, scorenum, max_skeletons, live_skeletons,  hearts, lives, archers, max_archers, archers_active, background, background_switched, game_start_time, highscore_written
+    global knight, character, skeletons, prev_space, prev_down, ignore_return, scorenum, max_skeletons, live_skeletons,  hearts, lives, archers, max_archers, archers_active, background, background_switched, game_start_time, highscore_written, wave, new_wave, current_lives
 
     background = StillImage(0, 0, 800, 800, "background1.png")
     background_switched = False
     game_start_time = None
+
+    wave = 1
+    new_wave = True
+    current_lives = False
 
     knight = Knight("Knight_1/Idle.png", 350, 590, 128, 128, "Knight_1")
     knight.resize(200, 200)
@@ -116,6 +121,13 @@ def game_reset():
     for i in range(5):
         heart = StillImage(HEART_X_BASE + i * HEART_SPACING, 0, 45, 45, "hearts.png")
         hearts.append(heart)
+
+    quests = quest_list2()
+    for quest in quests:
+        if "wavesDefeated" in quest["objectives"]:
+            quest["objectives"]["wavesDefeated"] = 0
+    with open ("quest_list.json", "w") as file:
+        json.dump(quests, file, indent=2)
 
 is_home = True
 
@@ -314,7 +326,7 @@ while True:
 
                                 if skeleton.hp <= 0:
                                     scorenum += 100
-                                    skeleton.die("Skeleton_Spearman", new_wave)
+                                    skeleton.die("Skeleton_Spearman", new_wave, current_lives)
                                     new_wave = False
 
                 prev_space = current_space
@@ -355,7 +367,8 @@ while True:
 
                     wave += 1
                     new_wave = True
-                    quest_update(None, None, wave, 0, 0)
+                    quest_update(None, None, wave, 0, 0, True)
+                    current_lives = True
                     previous_wave = scorenum
                     wave_text = WavesText(f"Wave {wave}", font, (0, 0, 0), (50, 350))
                     wave_display_time = time.get_ticks()
@@ -468,6 +481,8 @@ while True:
                                     knight.resize(200, 200)
                                 if knight.hp <= 0:
                                     lives -= 1
+                                    current_lives = False
+                                    quest_update(None, None, wave, current_archers, current_skeletons, current_lives)
                                     try:
                                         hearts.remove(hearts[-1])
                                     except Exception:
