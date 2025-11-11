@@ -164,7 +164,7 @@ game_start_time = None
 heart_spawn_time = time.get_ticks()
 
 try:
-    with open("highscore.txt", 'r') as file:
+    with open("highscore.txt", "r") as file:
         lines = file.readlines()
         numbers = [int(line.strip()) for line in lines if line.strip().isdigit()]
     highscore = max(numbers) if numbers else 0
@@ -264,8 +264,8 @@ while True:
                     heart_spawn_time = current_time
                     new_heart = StillImage(random.randint(-117, 710), random.choice([600, 715]), 45, 45, "hearts.png")
                     collectibles.append({
-                        'obj': new_heart,
-                        'spawn': current_time
+                        "obj": new_heart,
+                        "spawn": current_time
                     })
 
                 if current_time - last_spawn_time > 20000 and len(skeletons) <= 3 + wave:
@@ -297,12 +297,12 @@ while True:
                 left = pressed_keys[K_LEFT]
                 right = pressed_keys[K_RIGHT]
 
-                if not getattr(knight, 'dead', False):
+                if not getattr(knight, "dead", False):
                     if current_space and not prev_space and (left or right) and knight.on_ground:
                         if left:
-                            knight.direction = 'left'
+                            knight.direction = "left"
                         elif right:
-                            knight.direction = 'right'
+                            knight.direction = "right"
                         knight.attack_moving(character)
                         knight.resize(200, 200)
                         moved = True
@@ -323,7 +323,7 @@ while True:
 
                     if knight.attacking == True:
 
-                        if not hasattr(knight, 'damage_dealt'):
+                        if not hasattr(knight, "damage_dealt"):
                             knight.damage_dealt = False
 
                         for skeleton in skeletons:
@@ -343,20 +343,20 @@ while True:
 
                 prev_space = current_space
 
-                if not getattr(knight, 'dead', False) and pressed_keys[K_UP] and knight.on_ground:
+                if not getattr(knight, "dead", False) and pressed_keys[K_UP] and knight.on_ground:
                     knight.jump(character)
                     knight.resize(200, 200)
                     moved = True
 
                 down = pressed_keys[K_DOWN]
-                if not getattr(knight, 'dead', False) and down and not prev_down and knight.on_ground:
+                if not getattr(knight, "dead", False) and down and not prev_down and knight.on_ground:
                     knight.defend_start(character)
                     knight.resize(200, 200)
-                if not getattr(knight, 'dead', False) and not down and prev_down:
+                if not getattr(knight, "dead", False) and not down and prev_down:
                     knight.defend_stop(character)
                     knight.resize(200, 200)
 
-                if not moved and knight.on_ground and not knight.attacking and not knight.defending and not getattr(knight, 'dead', False) and not getattr(knight, 'took_damage', False):
+                if not moved and knight.on_ground and not knight.attacking and not knight.defending and not getattr(knight, "dead", False) and not getattr(knight, "took_damage", False):
                     try:
                         knight.change_animation(f"{character}/Idle.png", 128, 128)
                         knight.resize(200, 200)
@@ -368,7 +368,7 @@ while True:
                 knight.update()
                 knight_hitbox = knight.get_hitbox()
 
-                if getattr(knight, 'play_once_done', False) and getattr(knight, 'took_damage', False) and not getattr(knight, 'dead', False):
+                if getattr(knight, "play_once_done", False) and getattr(knight, "took_damage", False) and not getattr(knight, "dead", False):
                     knight.took_damage = False
                     knight.play_once = False
                     knight.play_once_done = False
@@ -376,7 +376,7 @@ while True:
                 background.draw(window)
 
                 if scorenum >= previous_wave + 1000:
-                    
+
                     wave += 1
                     new_wave = True
                     quest_update(None, None, wave, 0, 0, True)
@@ -401,7 +401,7 @@ while True:
                         archer.draw(window)
 
                         shoot_current_time = time.get_ticks()
-                        if getattr(archer, 'shoot_cooldown', 0) == 0:
+                        if getattr(archer, "shoot_cooldown", 0) == 0:
                             archer.shoot_cooldown = 0
                         if shoot_current_time - archer.shoot_cooldown > 3000:
                             if abs(archer.rect.x - knight.rect.centerx) <= 350:
@@ -413,7 +413,7 @@ while True:
                         else:
                             distance = archer.rect.x - knight.rect.x
 
-                        if knight_hitbox.colliderect(archer.get_hitbox()) and getattr(knight, 'attacking', True) and not knight.damage_dealt:
+                        if knight_hitbox.colliderect(archer.get_hitbox()) and getattr(knight, "attacking", True) and not knight.damage_dealt:
                             
                             archer.hp -= 20 
                             knight.damage_dealt = True
@@ -424,8 +424,8 @@ while True:
 
                 COLLECTIBLE_LIFETIME = 10000 
                 for item in collectibles[:]:
-                    c = item['obj']
-                    spawn = item.get('spawn', 0)
+                    c = item["obj"]
+                    spawn = item.get("spawn", 0)
                     tick = time.get_ticks() // 500 % 2
                     if tick == 0:
                         c.draw(window)
@@ -440,7 +440,7 @@ while True:
                         distance = c.rect.x - knight.rect.x
 
                     if knight_hitbox.colliderect(c.rect):
-                        if not (c.rect.x == 715 and getattr(knight, 'on_ground', True)):
+                        if not (c.rect.x == 715 and getattr(knight, "on_ground", True)):
                             if len(hearts) < 5:
                                 new_x = HEART_X_BASE + len(hearts) * HEART_SPACING
                                 heart = StillImage(new_x, 0, 45, 45, "hearts.png")
@@ -474,8 +474,8 @@ while True:
 
                             blocked = False
                             try:
-                                if getattr(knight, 'defending', False):
-                                    if getattr(knight, 'direction', None) != getattr(arrow, 'direction', None):
+                                if getattr(knight, "defending", False):
+                                    if getattr(knight, "direction", None) != getattr(arrow, "direction", None):
                                         blocked = True
                             except Exception:
                                 blocked = False
@@ -485,7 +485,7 @@ while True:
                                 knight.hp = max(0, knight.hp - 10)
                                 knight.took_damage = True
 
-                                if not getattr(knight, 'dead', False):
+                                if not getattr(knight, "dead", False):
                                     try:
                                         knight.change_animation(f"{character}/Hurt.png", 128, 128, play_once=True)
                                     except Exception:
@@ -529,7 +529,7 @@ while True:
                         skeleton_healthbar.draw(window)
 
                 for skeleton in skeletons[:]:
-                    if getattr(skeleton, 'remove', False) and getattr(skeleton, "dead", True):
+                    if getattr(skeleton, "remove", False) and getattr(skeleton, "dead", True):
                         try:
                             skeletons.remove(skeleton)
                             live_skeletons = max(0, live_skeletons - 1)
@@ -537,7 +537,7 @@ while True:
                             pass
 
                 for archer in archers[:]:
-                    if getattr(archer, 'remove', False) and getattr(archer, "dead", True):
+                    if getattr(archer, "remove", False) and getattr(archer, "dead", True):
                         try:
                             archers.remove(archer)
                         except Exception:
@@ -554,9 +554,8 @@ while True:
                         warrior_healthbar.draw(window)
 
                 for warrior in warriors:
-                    warrior.update("Skeleton_Warrior")
+                    warrior.update()
                     warrior.draw(window)
-                    warrior.move(knight.rect.centerx, "Skeleton_Warrior")
 
                     if warrior.rect.x < knight.rect.x:
                         distance = (knight.rect.x - warrior.rect.x) - 50
@@ -565,23 +564,31 @@ while True:
 
                         if distance <= 80:
 
-                            if not getattr(warrior, "attacking", False):
+                            if not hasattr(warrior, "last_attack_time"):
+                                warrior.last_attack_time = 0
+
+                            warrior_now = time.get_ticks()
+
+                            if getattr(knight, "attacking", False):
+                                warrior.defend()
+                            elif warrior_now - warrior.last_attack_time >= 3000:
                                 warrior.attack("Skeleton_Warrior")
+                                warrior.last_attack_time = warrior_now
                             
-                            if getattr(warrior, 'attacking', False) and not getattr(warrior, 'play_once_done', False):
-                                if not getattr(knight, 'took_damage', False) and not getattr(knight, 'dead', False):
+                            if getattr(warrior, "attacking", False) and not getattr(warrior, "play_once_done", False):
+                                if not getattr(knight, "took_damage", False) and not getattr(knight, "dead", False):
 
                                     blocked = False
                                     try:
-                                        if getattr(knight, 'defending', False):
-                                            if getattr(knight, 'direction', None) != getattr(warrior, 'direction', None):
+                                        if getattr(knight, "defending", False):
+                                            if getattr(knight, "direction", None) != getattr(warrior, "direction", None):
                                                 blocked = True
                                     except Exception:
                                         blocked = False
 
                                     if not blocked:
 
-                                        knight.hp = max(0, knight.hp - 5)
+                                        knight.hp = max(0, knight.hp - 20)
                                         knight.took_damage = True
                                         try:
                                             knight.change_animation(f"{character}/Hurt.png", 128, 128, play_once=True)
@@ -602,16 +609,16 @@ while True:
                                     else:
                                         knight.took_damage = False
 
-                            if getattr(warrior, 'play_once_done', False):
+                            if getattr(warrior, "play_once_done", False):
                                 knight.took_damage = False
                         
                         else:
                             warrior.move(knight.rect.centerx, "Skeleton_Warrior")
 
-                    if getattr(knight, 'dead', False) and getattr(knight, 'play_once_done', False):
+                    if getattr(knight, "dead", False) and getattr(knight, "play_once_done", False):
                         if not highscore_written:
                             try:
-                                with open("highscore.txt", 'a') as file:
+                                with open("highscore.txt", "a") as file:
                                     file.write("\n" + str(scorenum))
                             except Exception:
                                 pass
@@ -624,14 +631,15 @@ while True:
                         if is_home != None and not is_home:
                             game_reset()
                         
-                    if knight_hitbox.colliderect(warrior.get_hitbox()) and getattr(knight, 'attacking', True) and not knight.damage_dealt:
+                    if knight_hitbox.colliderect(warrior.get_hitbox()) and getattr(knight, "attacking", True) and not knight.damage_dealt:
                         
-                        warrior.hp -= 20 
-                        knight.damage_dealt = True
-                        if warrior.hp <= 0:
-                            scorenum += 250
-                            warrior.die("Skeleton_Warrior", new_wave, current_lives)
-                            new_wave = False
+                        if not getattr(warrior, "defending", True):
+                            warrior.hp -= 20 
+                            knight.damage_dealt = True
+                            if warrior.hp <= 0:
+                                scorenum += 250
+                                warrior.die("Skeleton_Warrior", new_wave, current_lives)
+                                new_wave = False
                     
                 for skeleton in skeletons:
                     
@@ -645,16 +653,16 @@ while True:
 
                     if distance <= 60:
                 
-                        if not getattr(skeleton, 'attacking', False):
+                        if not getattr(skeleton, "attacking", False):
                             skeleton.attack("Skeleton_Spearman")
 
-                        if getattr(skeleton, 'attacking', False) and not getattr(skeleton, 'play_once_done', False):
-                            if not getattr(knight, 'took_damage', False) and not getattr(knight, 'dead', False):
+                        if getattr(skeleton, "attacking", False) and not getattr(skeleton, "play_once_done", False):
+                            if not getattr(knight, "took_damage", False) and not getattr(knight, "dead", False):
 
                                 blocked = False
                                 try:
-                                    if getattr(knight, 'defending', False):
-                                        if getattr(knight, 'direction', None) != getattr(skeleton, 'direction', None):
+                                    if getattr(knight, "defending", False):
+                                        if getattr(knight, "direction", None) != getattr(skeleton, "direction", None):
                                             blocked = True
                                 except Exception:
                                     blocked = False
@@ -682,16 +690,16 @@ while True:
                                 else:
                                     knight.took_damage = False
 
-                        if getattr(skeleton, 'play_once_done', False):
+                        if getattr(skeleton, "play_once_done", False):
                             knight.took_damage = False
                     
                     else:
                         skeleton.move(knight.rect.centerx, "Skeleton_Spearman")
 
-                if getattr(knight, 'dead', False) and getattr(knight, 'play_once_done', False):
+                if getattr(knight, "dead", False) and getattr(knight, "play_once_done", False):
                     if not highscore_written:
                         try:
-                            with open("highscore.txt", 'a') as file:
+                            with open("highscore.txt", "a") as file:
                                 file.write("\n" + str(scorenum))
                         except Exception:
                             pass
@@ -704,7 +712,7 @@ while True:
                     if is_home != None and not is_home:
                         game_reset()
 
-                if getattr(knight, 'play_once_done', False) and getattr(knight, 'attacking', False):
+                if getattr(knight, "play_once_done", False) and getattr(knight, "attacking", False):
                         knight.damage_dealt = False
                         knight.attacking = False
                         knight.play_once_done = False

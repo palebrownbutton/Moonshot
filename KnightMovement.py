@@ -26,7 +26,7 @@ class Knight(AnimatedSprite):
         return Rect(hb_x, hb_y, hb_w, hb_h)
 
     def die(self, character):
-        if getattr(self, 'dead', False):
+        if getattr(self, "dead", False):
             return
         self.dead = True
         self.attacking = False
@@ -39,7 +39,7 @@ class Knight(AnimatedSprite):
         except Exception:
             pass
         try:
-            if getattr(self, 'scale_w', None) is not None:
+            if getattr(self, "scale_w", None) is not None:
                 self.resize(self.scale_w, self.scale_h)
         except Exception:
             pass
@@ -57,7 +57,7 @@ class Knight(AnimatedSprite):
         else:
             self.on_ground = False
 
-        if getattr(self, 'attacking', False) and getattr(self, 'play_once_done', False):
+        if getattr(self, "attacking", False) and getattr(self, "play_once_done", False):
             self.attacking = False
             self.play_once = False
             self.play_once_done = False
@@ -70,7 +70,7 @@ class Knight(AnimatedSprite):
 
         if self.rect.x > -117:
             self.rect.x -= 7
-        if not getattr(self, 'attacking', False):
+        if not getattr(self, "attacking", False):
             self.change_animation(f"{knight_number}/Run.png", 128, 128)
 
     def move_right(self, knight_number):
@@ -81,12 +81,12 @@ class Knight(AnimatedSprite):
 
         if self.rect.x < 710:
             self.rect.x += 7
-        if not getattr(self, 'attacking', False):
+        if not getattr(self, "attacking", False):
             self.change_animation(f"{knight_number}/Run.png", 128, 128)
 
     def jump(self, knight_number):
 
-        if getattr(self, 'attacking', False):
+        if getattr(self, "attacking", False):
             self.attacking = False
             self.play_once = False
             self.play_once_done = False
@@ -97,7 +97,7 @@ class Knight(AnimatedSprite):
 
     def attack_stationary(self, knight_number, attack_type):
 
-        if getattr(self, 'attacking', False):
+        if getattr(self, "attacking", False):
             return
 
         self.change_animation(f"{knight_number}/Attack {attack_type}.png", 128, 128, play_once=True)
@@ -105,7 +105,7 @@ class Knight(AnimatedSprite):
 
     def attack_moving(self, knight_number):
 
-        if getattr(self, 'attacking', False):
+        if getattr(self, "attacking", False):
             return
 
         self.change_animation(f"{knight_number}/Run+Attack.png", 128, 128, play_once=True)
@@ -113,7 +113,7 @@ class Knight(AnimatedSprite):
 
     def defend(self, knight_number):
 
-        if getattr(self, 'attacking', False):
+        if getattr(self, "attacking", False):
             return
 
         self.change_animation(f"{knight_number}/Protect.png", 128, 128, play_once=True)
@@ -121,7 +121,7 @@ class Knight(AnimatedSprite):
 
     def defend_start(self, knight_number):
 
-        if getattr(self, 'attacking', False):
+        if getattr(self, "attacking", False):
             return
 
         self.defending = True
@@ -129,7 +129,7 @@ class Knight(AnimatedSprite):
 
     def defend_stop(self, knight_number):
 
-        if not getattr(self, 'defending', False):
+        if not getattr(self, "defending", False):
             return
 
         self.defending = False

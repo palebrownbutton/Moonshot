@@ -48,10 +48,10 @@ class Enemy(AnimatedSprite):
 
     def update(self, enemy_type):
 
-        if getattr(self, 'hp', 0) <= 0 and not getattr(self, 'dead', False):
+        if getattr(self, "hp", 0) <= 0 and not getattr(self, "dead", False):
             self.die(enemy_type)
 
-        if getattr(self, 'attacking', False) and getattr(self, 'play_once_done', False):
+        if getattr(self, "attacking", False) and getattr(self, "play_once_done", False):
             self.attacking = False
             self.play_once = False
             self.play_once_done = False
@@ -60,7 +60,7 @@ class Enemy(AnimatedSprite):
             except Exception:
                 pass
 
-        if getattr(self, 'dead', False) and getattr(self, 'play_once_done', False):
+        if getattr(self, "dead", False) and getattr(self, "play_once_done", False):
             self.play_once = False
             self.play_once_done = False
             self.remove = True
@@ -77,7 +77,7 @@ class Enemy(AnimatedSprite):
     def die(self, enemy_type, new_wave, current_lives):
         global current_archers, current_skeletons
 
-        if getattr(self, 'dead', False):
+        if getattr(self, "dead", False):
             return
         
         if new_wave == True:
@@ -103,7 +103,7 @@ class Enemy(AnimatedSprite):
         except Exception:
             pass
         try:
-            if getattr(self, 'scale_w', None) is not None:
+            if getattr(self, "scale_w", None) is not None:
                 self.resize(self.scale_w, self.scale_h)
         except Exception:
             pass
@@ -119,14 +119,14 @@ class Skeleton(Enemy):
             if player_x + 100 < self.rect.x:
                 self.direction = "left"
                 self.rect.x -= 2
-                if not getattr(self, 'attacking', False):
+                if not getattr(self, "attacking", False):
                     try:
                         self.change_animation(f"{enemy_type}/Run.png", 128, 128)
                     except Exception:
                         pass
             else:
                 self.rect.x += 2
-                if not getattr(self, 'attacking', False):
+                if not getattr(self, "attacking", False):
                     try:
                         self.change_animation(f"{enemy_type}/Run.png", 128, 128)
                     except Exception:
@@ -137,14 +137,14 @@ class Skeleton(Enemy):
             if player_x - 100 > self.rect.x:
                 self.direction = "right"
                 self.rect.x += 2
-                if not getattr(self, 'attacking', False):
+                if not getattr(self, "attacking", False):
                     try:
                         self.change_animation(f"{enemy_type}/Run.png", 128, 128)
                     except Exception:
                         pass
             else:
                 self.rect.x -= 2
-                if not getattr(self, 'attacking', False):
+                if not getattr(self, "attacking", False):
                     try:
                         self.change_animation(f"{enemy_type}/Run.png", 128, 128)
                     except Exception:
@@ -177,7 +177,7 @@ class Archer(Enemy):
     def move(self, player_x, enemy_type):
         global can_shoot
 
-        if getattr(self, 'attacking', False):
+        if getattr(self, "attacking", False):
             return
 
         STOP_DISTANCE = 320
@@ -202,10 +202,10 @@ class Archer(Enemy):
         if dist > STOP_DISTANCE:
             if self.rect.x < player_x:
                 self.rect.x += 2
-                self.direction = 'right'
+                self.direction = "right"
             else:
                 self.rect.x -= 2
-                self.direction = 'left'
+                self.direction = "left"
             try:
                 self.change_animation(f"{enemy_type}/Run.png", 128, 128)
             except Exception:
@@ -213,9 +213,9 @@ class Archer(Enemy):
             return
         
         if self.rect.x < player_x:
-            self.direction = 'right'
+            self.direction = "right"
         else:
-            self.direction = 'left'
+            self.direction = "left"
 
         try:
             self.change_animation(f"{enemy_type}/Run.png", 128, 128)
@@ -229,7 +229,7 @@ class Archer(Enemy):
         self.arrow_fired = False
         self.arrow_timer = time.get_ticks() + 400
 
-        self.target_pos = getattr(self, 'target_pos', None)
+        self.target_pos = getattr(self, "target_pos", None)
         try:
             self.change_animation(f"{enemy_type}/Shot_1.png", 128, 128, play_once=True)
         except Exception:
@@ -238,15 +238,15 @@ class Archer(Enemy):
     def update(self, enemy_type):
         super().update(enemy_type)
 
-        if self.attacking and not getattr(self, 'arrow_fired', False) and getattr(self, 'arrow_timer', None) and time.get_ticks() >= self.arrow_timer:
+        if self.attacking and not getattr(self, "arrow_fired", False) and getattr(self, "arrow_timer", None) and time.get_ticks() >= self.arrow_timer:
             arrow_w = 83
             arrow_h = 100
-            if self.direction == 'right':
+            if self.direction == "right":
                 spawn_x = self.rect.right - 10
             else:
                 spawn_x = self.rect.left - arrow_w + 10
             spawn_y = self.rect.y + 90
-            arrow = Arrows(spawn_x, spawn_y, arrow_w, arrow_h, "arrow.png", direction=self.direction, target_pos=getattr(self, 'target_pos', None))
+            arrow = Arrows(spawn_x, spawn_y, arrow_w, arrow_h, "arrow.png", direction=self.direction, target_pos=getattr(self, "target_pos", None))
             arrows.append(arrow)
             self.arrow_fired = True
             self.arrow_fired = True
@@ -285,18 +285,21 @@ class Warrior(Enemy):
 
     def move(self, player_x, enemy_type):
 
+        if getattr(self, "attacking", False) or getattr(self, "defending", False):
+            return
+
         if self.direction == "right" and not getattr(self, "attacking", False):
             if player_x + 100 < self.rect.x:
                 self.direction = "left"
                 self.rect.x -= 2
-                if not getattr(self, 'attacking', False):
+                if not getattr(self, "attacking", False):
                     try:
                         self.change_animation(f"{enemy_type}/Run.png", 128, 128)
                     except Exception:
                         pass
             else:
                 self.rect.x += 2
-                if not getattr(self, 'attacking', False):
+                if not getattr(self, "attacking", False):
                     try:
                         self.change_animation(f"{enemy_type}/Run.png", 128, 128)
                     except Exception:
@@ -307,18 +310,30 @@ class Warrior(Enemy):
             if player_x - 100 > self.rect.x:
                 self.direction = "right"
                 self.rect.x += 2
-                if not getattr(self, 'attacking', False):
+                if not getattr(self, "attacking", False):
                     try:
                         self.change_animation(f"{enemy_type}/Run.png", 128, 128)
                     except Exception:
                         pass
             else:
                 self.rect.x -= 2
-                if not getattr(self, 'attacking', False):
+                if not getattr(self, "attacking", False):
                     try:
                         self.change_animation(f"{enemy_type}/Run.png", 128, 128)
                     except Exception:
                         pass
+
+    def update(self):
+        super().update(enemy_type="Skeleton_Warrior")
+
+        if getattr(self, "defending", False) and getattr(self, "play_once_done", False):
+            self.defending = False
+            self.play_once = False
+            self.play_once_done = False
+            try:
+                self.change_animation("Skeleton_Warrior/Run.png", 128, 128)
+            except Exception:
+                pass
 
     def attack(self, enemy_type):
 
@@ -326,6 +341,14 @@ class Warrior(Enemy):
         attack_type = random.randint(1, 3)
         try:
             self.change_animation(f"{enemy_type}/Attack_{attack_type}.png", 128, 128, play_once=True)
+        except Exception:
+            pass
+
+    def defend(self):
+
+        self.defending = True
+        try:
+            self.change_animation("Skeleton_Warrior/Protect.png", 128, 128, play_once=True)
         except Exception:
             pass
     
