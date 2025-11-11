@@ -290,11 +290,11 @@ class Warrior(Enemy):
 
     def move(self, player_x, enemy_type):
 
-        if getattr(self, "attacking", False) or getattr(self, "defending", False) or getattr(self, "play_once", False):
+        if getattr(self, "attacking", False) or getattr(self, "defending", False):
             return
 
         if self.direction == "right" and not getattr(self, "attacking", False):
-            if player_x + 100 < self.rect.x:
+            if player_x + 50 < self.rect.x:
                 self.direction = "left"
                 self.rect.x -= 2
                 if not getattr(self, "attacking", False):
@@ -336,13 +336,13 @@ class Warrior(Enemy):
             self.play_once = False
             self.play_once_done = False
             try:
-                self.change_animation("Skeleton_Warrior/Run.png", 128, 128)
+                self.change_animation("Skeleton_Warrior/Idle.png", 128, 128)
             except Exception:
                 pass
 
         current_time = time.get_ticks()
 
-        if getattr(self, "defending", False):
+        if getattr(self, "defending", False) and getattr(self, "play_once_done", False):
             
             if current_time - self.last_defend_time >= 3000 and not self.attack_after_defend:
 

@@ -76,7 +76,7 @@ background = StillImage(0, 0, 800, 800, "background1.png")
 background_switched = False
 
 def game_reset():
-    global knight, character, skeletons, prev_space, prev_down, ignore_return, scorenum, max_skeletons, live_skeletons,  hearts, lives, archers, max_archers, archers_active, background, background_switched, game_start_time, highscore_written, wave, new_wave, current_lives
+    global knight, character, skeletons, prev_space, prev_down, ignore_return, scorenum, max_skeletons, live_skeletons,  hearts, lives, archers, max_archers, archers_active, background, background_switched, game_start_time, highscore_written, wave, new_wave, current_lives, warriors, max_warriors
 
     background = StillImage(0, 0, 800, 800, "background1.png")
     background_switched = False
@@ -108,6 +108,13 @@ def game_reset():
         archer = Archer("Skeleton_Archer/Idle.png", -200, 590, 128, 128, "Skeleton_Archer")
         archer.spawn("Skeleton_Archer", 65 * wave)
         archers.append(archer)
+
+    warriors = []
+    max_warriors = 3
+    for i in range(max_warriors):
+        warrior = Warrior("Skeleton_Warrior/Idle.png", -200, 590, 128, 128, "Skeleton_Warrior")
+        warrior.spawn("Skeleton_Warrior", 70 * wave)
+        warriors.append(warrior)
 
     try:
         arrows.clear()
@@ -183,6 +190,12 @@ esc_last = 0
 esc_delay = 150
 
 paused_time = 0
+
+archer_last_spawn_time = time.get_ticks()
+archers_active = False
+first_archer_wave_spawned = False
+
+warrior_last_spawn_time = time.get_ticks()
 
 while True:
 
@@ -280,15 +293,38 @@ while True:
                         else:
                             break
 
-                if current_time - archer_spawn_time > 45000 and len(archers) < 1 + wave and wave >= 2:
-                    archer_spawn_time = current_time
+                if wave >= 2:
+                    archer_current_time = time.get_ticks()
+                    
+                    if not first_archer_wave_spawned:
+                        new_archer = Archer("Skeleton_Archer/Idle.png", -200, 590, 128, 128, "Skeleton_Archer")
+                        new_archer.spawn("Skeleton_Archer", 65 * wave)
+                        new_archer.resize(200, 200)
+                        archers.append(new_archer)
 
-                    new_archer = Archer("Skeleton_Archer/Idle.png", -200, 590, 128, 128, "Skeleton_Archer")
-                    new_archer.spawn("Skeleton_Archer", 65 * wave)
-                    new_archer.resize(200, 200)
-                    new_archer.rect.x = random.randint(-600, -100)
-                    archers.append(new_archer)
-                    archers_active = True
+                        first_archer_wave_spawned = True
+                        archer_last_spawn_time = archer_current_time
+                        archers_active = True
+
+                    elif current_time - archer_last_spawn_time >= 45000:
+                        
+                        new_archer = Archer("Skeleton_Archer/Idle.png", -200, 590, 128, 128, "Skeleton_Archer")
+                        new_archer.spawn("Skeleton_Archer", 65 * wave)
+                        new_archer.resize(200, 200)
+                        archers.append(new_archer)
+                        archer_current_time = time.get_ticks()
+                        archer_last_spawn_time = archer_current_time
+                        archer_active = True
+
+                if current_time - warrior_last_spawn_time >= 30000:
+
+                    new_warrior = Warrior("Skeleton_Warrior/Idle.png", -200, 590, 128, 128, "Skeleton_Warrior")
+                    new_warrior.spawn("Skeleton_Warrior", 70 * wave)
+                    new_warrior.resize(200, 200)
+                    warriors.append(new_warrior)
+
+                    warrior_last_spawn_time = current_time
+
 
                 moved = False
 
@@ -333,7 +369,7 @@ while True:
                                 distance = skeleton.rect.x - knight.rect.x
 
                             if knight.get_hitbox().colliderect(skeleton.get_hitbox()) and not knight.damage_dealt:
-                                skeleton.hp -= 20
+                                skeleton.hp -= 2 * knight.strenght
                                 knight.damage_dealt = True
 
                                 if skeleton.hp <= 0:
@@ -415,7 +451,7 @@ while True:
 
                         if knight_hitbox.colliderect(archer.get_hitbox()) and getattr(knight, "attacking", True) and not knight.damage_dealt:
                             
-                            archer.hp -= 20 
+                            archer.hp -= 1.5 * knight.strenght 
                             knight.damage_dealt = True
                             if archer.hp <= 0:
                                 scorenum += 250
@@ -641,7 +677,7 @@ while True:
                     if knight_hitbox.colliderect(warrior.get_hitbox()) and getattr(knight, "attacking", True) and not knight.damage_dealt:
                         
                         if not getattr(warrior, "defending", True):
-                            warrior.hp -= 20 
+                            warrior.hp -= 1 * knight.strenght 
                             knight.damage_dealt = True
                             if warrior.hp <= 0:
                                 scorenum += 250
@@ -750,6 +786,14 @@ while True:
                     archers.append(archer)
                     archer_healthbar = Healthbars(archer.rect.x + 75, archer.rect.y + 90, 50, 7)
                     archer_healthbars.append(archer_healthbar)
+
+                if len(warriors) == 0:
+                    warrior_healthbars.clear()
+                    warrior = Warrior("Skeleton_Warrior/Idle.png", -200, 590, 128, 128, "Skeleton_Warrior")
+                    warrior.spawn("Skeleton_Warrior", 70 * wave)
+                    warriors.append(warrior)
+                    warrior_healthbar = Healthbars(warrior.rect.x + 75, warrior.rect.y + 90, 50, 7)
+                    warrior_healthbars.append(warrior_healthbar)
 
     display.update()
     clock.tick(60)

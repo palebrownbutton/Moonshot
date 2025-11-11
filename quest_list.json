@@ -25,14 +25,14 @@
       true,
       true,
       true,
-      false,
-      false,
-      false,
+      true,
+      true,
+      true,
       false,
       false
     ],
     "objectives": {
-      "skeletonsDefeated": 35,
+      "skeletonsDefeated": 113,
       "requiredSkeletons": [
         1,
         10,
@@ -127,10 +127,10 @@
     ],
     "isCompleted": [
       true,
-      false
+      true
     ],
     "objectives": {
-      "leftDefeated": 29,
+      "leftDefeated": 80,
       "requiredLeft": [
         10,
         50
@@ -155,10 +155,10 @@
     ],
     "isCompleted": [
       true,
-      false
+      true
     ],
     "objectives": {
-      "rightDefeated": 14,
+      "rightDefeated": 50,
       "requiredRight": [
         10,
         50
@@ -184,12 +184,12 @@
       "Beat wave 20"
     ],
     "isCompleted": [
-      false,
+      true,
       false,
       false
     ],
     "objectives": {
-      "wavesDefeated": 0,
+      "wavesDefeated": 1,
       "requiredWaves": [
         3,
         10,
@@ -270,11 +270,11 @@
     ],
     "isCompleted": [
       true,
-      false
+      true
     ],
     "objectives": {
-      "rightDefeated": 14,
-      "leftDefeated": 29,
+      "rightDefeated": 50,
+      "leftDefeated": 80,
       "requiredRight": [
         5,
         15
