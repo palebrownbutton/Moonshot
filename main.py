@@ -543,6 +543,13 @@ while True:
                         except Exception:
                             pass
 
+                for warrior in warriors[:]:
+                    if getattr(warrior, "remove", False) and getattr(warrior, "dead", True):
+                        try:
+                            warriors.remove(warrior)
+                        except Exception:
+                            pass
+
                 for archer in archers:
                     for archer_healthbar in archer_healthbars:
                         archer_healthbar.update(archer.hp, archer.rect.x, archer.rect.y, 65 * wave)
@@ -569,11 +576,11 @@ while True:
 
                             warrior_now = time.get_ticks()
 
-                            if getattr(knight, "attacking", False):
-                                warrior.defend()
-                            elif warrior_now - warrior.last_attack_time >= 3000:
-                                warrior.attack("Skeleton_Warrior")
+                            if getattr(knight, "attacking", False) and warrior_now - warrior.last_attack_time >= 3000:
                                 warrior.last_attack_time = warrior_now
+                                warrior.defend()
+                            else:
+                                warrior.attack("Skeleton_Warrior")    
                             
                             if getattr(warrior, "attacking", False) and not getattr(warrior, "play_once_done", False):
                                 if not getattr(knight, "took_damage", False) and not getattr(knight, "dead", False):

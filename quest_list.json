@@ -24,7 +24,7 @@
     "isCompleted": [
       true,
       true,
-      false,
+      true,
       false,
       false,
       false,
@@ -32,7 +32,7 @@
       false
     ],
     "objectives": {
-      "skeletonsDefeated": 22,
+      "skeletonsDefeated": 35,
       "requiredSkeletons": [
         1,
         10,
@@ -130,7 +130,7 @@
       false
     ],
     "objectives": {
-      "leftDefeated": 19,
+      "leftDefeated": 29,
       "requiredLeft": [
         10,
         50
@@ -154,11 +154,11 @@
       "Kill 50 enemies that spawn from the right"
     ],
     "isCompleted": [
-      false,
+      true,
       false
     ],
     "objectives": {
-      "rightDefeated": 8,
+      "rightDefeated": 14,
       "requiredRight": [
         10,
         50
@@ -189,7 +189,7 @@
       false
     ],
     "objectives": {
-      "wavesDefeated": 2,
+      "wavesDefeated": 0,
       "requiredWaves": [
         3,
         10,
@@ -273,8 +273,8 @@
       false
     ],
     "objectives": {
-      "rightDefeated": 8,
-      "leftDefeated": 19,
+      "rightDefeated": 14,
+      "leftDefeated": 29,
       "requiredRight": [
         5,
         15

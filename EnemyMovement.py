@@ -283,9 +283,14 @@ class Warrior(Enemy):
     def __init__(self, sprite_sheet, x, y, w, h, enemy_type, hp=100):
         super().__init__(sprite_sheet, x, y, w, h, enemy_type, hp)
 
+        self.defending = False
+        self.last_defend_time = 0
+        self.last_attack_time = 0 
+        self.attack_after_defend = False
+
     def move(self, player_x, enemy_type):
 
-        if getattr(self, "attacking", False) or getattr(self, "defending", False):
+        if getattr(self, "attacking", False) or getattr(self, "defending", False) or getattr(self, "play_once", False):
             return
 
         if self.direction == "right" and not getattr(self, "attacking", False):
@@ -324,10 +329,10 @@ class Warrior(Enemy):
                         pass
 
     def update(self):
-        super().update(enemy_type="Skeleton_Warrior")
+        super().update("Skeleton_Warrior")
 
-        if getattr(self, "defending", False) and getattr(self, "play_once_done", False):
-            self.defending = False
+        if getattr(self, "attacking", False) and getattr(self, "play_once_done", False):
+            self.attacking = False
             self.play_once = False
             self.play_once_done = False
             try:
@@ -335,7 +340,35 @@ class Warrior(Enemy):
             except Exception:
                 pass
 
+        current_time = time.get_ticks()
+
+        if getattr(self, "defending", False):
+            
+            if current_time - self.last_defend_time >= 3000 and not self.attack_after_defend:
+
+                self.attack_after_defend = True
+                self.attacking = True
+                self.defending = False
+                self.last_attack_time = current_time
+                attack_type = random.randint(1, 3)
+                try:
+                    self.change_animation(f"Skeleton_Warrior/Attack_{attack_type}.png", 128, 128, play_once=True)
+                except Exception:
+                    pass
+
+        if getattr(self, "attack_after_defend", False) and getattr(self, "play_once_done", False):
+            self.attack_after_defend = False
+            self.defending = True
+            self.last_defend_time = current_time
+            try:
+                self.change_animation("Skeleton_Warrior/Protect.png", 128, 128, play_once=True)
+            except Exception:
+                pass
+
     def attack(self, enemy_type):
+
+        if getattr(self, "attacking", False) or getattr(self, "play_once", False):
+            return
 
         self.attacking = True
         attack_type = random.randint(1, 3)
@@ -345,12 +378,15 @@ class Warrior(Enemy):
             pass
 
     def defend(self):
-
-        self.defending = True
-        try:
-            self.change_animation("Skeleton_Warrior/Protect.png", 128, 128, play_once=True)
-        except Exception:
-            pass
+        
+        if not self.defending:
+            self.defending = True
+            self.last_defend_time = time.get_ticks()
+            self.attack_after_defend = False
+            try:
+                self.change_animation("Skeleton_Warrior/Protect.png", 128, 128, play_once=True)
+            except Exception:
+                pass
     
 class Healthbars():
 
