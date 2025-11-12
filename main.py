@@ -193,9 +193,11 @@ paused_time = 0
 
 archer_last_spawn_time = time.get_ticks()
 archers_active = False
-first_archer_wave_spawned = False
+first_archer_spawned = False
 
 warrior_last_spawn_time = time.get_ticks()
+warriors_active = False
+first_warrior_spawned = False
 
 while True:
 
@@ -225,7 +227,15 @@ while True:
             except Exception:
                 pass
             try:
+                warrior_last_spawn_time = now
+            except Exception:
+                pass
+            try:
                 archers_active = False
+            except Exception:
+                pass
+            try:
+                warriors_active = False
             except Exception:
                 pass
             try:
@@ -296,17 +306,17 @@ while True:
                 if wave >= 2:
                     archer_current_time = time.get_ticks()
                     
-                    if not first_archer_wave_spawned:
+                    if not first_archer_spawned:
                         new_archer = Archer("Skeleton_Archer/Idle.png", -200, 590, 128, 128, "Skeleton_Archer")
                         new_archer.spawn("Skeleton_Archer", 65 * wave)
                         new_archer.resize(200, 200)
                         archers.append(new_archer)
 
-                        first_archer_wave_spawned = True
+                        first_archer_spawned = True
                         archer_last_spawn_time = archer_current_time
                         archers_active = True
 
-                    elif current_time - archer_last_spawn_time >= 45000:
+                    elif archer_current_time - archer_last_spawn_time >= 45000:
                         
                         new_archer = Archer("Skeleton_Archer/Idle.png", -200, 590, 128, 128, "Skeleton_Archer")
                         new_archer.spawn("Skeleton_Archer", 65 * wave)
@@ -314,16 +324,29 @@ while True:
                         archers.append(new_archer)
                         archer_current_time = time.get_ticks()
                         archer_last_spawn_time = archer_current_time
-                        archer_active = True
 
-                if current_time - warrior_last_spawn_time >= 30000:
+                if wave >= 3:
+                    warrior_current_time = time.get_ticks()
 
-                    new_warrior = Warrior("Skeleton_Warrior/Idle.png", -200, 590, 128, 128, "Skeleton_Warrior")
-                    new_warrior.spawn("Skeleton_Warrior", 70 * wave)
-                    new_warrior.resize(200, 200)
-                    warriors.append(new_warrior)
+                    if not first_warrior_spawned:
+                        new_warrior = Warrior("Skeleton_Warrior/Idle.png", -200, 590, 128, 128, "Skeleton_Warrior")
+                        new_warrior.spawn("Skeleton_Warrior", 70 * wave)
+                        new_warrior.resize(200, 200)
+                        warriors.append(new_warrior)
 
-                    warrior_last_spawn_time = current_time
+                        first_warrior_spawned = True
+                        warrior_last_spawn_time = warrior_current_time
+                        warriors_active = True
+
+                    elif warrior_current_time - warrior_last_spawn_time >= 40000:
+
+                        new_warrior = Warrior("Skeleton_Warrior/Idle.png", -200, 590, 128, 128, "Skeleton_Warrior")
+                        new_warrior.spawn("Skeleton_Warrior", 70 * wave)
+                        new_warrior.resize(200, 200)
+                        warriors.append(new_warrior)
+
+                        warrior_last_spawn_time = warrior_current_time
+                        warriors_active = True
 
 
                 moved = False
@@ -596,93 +619,95 @@ while True:
                         warrior_healthbar.update(warrior.hp, warrior.rect.x, warrior.rect.y, 70 * wave)
                         warrior_healthbar.draw(window)
 
-                for warrior in warriors:
-                    warrior.update()
-                    warrior.draw(window)
+                if warriors_active:
 
-                    if warrior.rect.x < knight.rect.x:
-                        distance = (knight.rect.x - warrior.rect.x) - 50
-                    else:
-                        distance = warrior.rect.x - knight.rect.x
+                    for warrior in warriors:
+                        warrior.update()
+                        warrior.draw(window)
 
-                        if distance <= 80:
+                        if warrior.rect.x < knight.rect.x:
+                            distance = (knight.rect.x - warrior.rect.x) - 50
+                        else:
+                            distance = warrior.rect.x - knight.rect.x
 
-                            if not hasattr(warrior, "last_attack_time"):
-                                warrior.last_attack_time = 0
+                            if distance <= 80:
 
-                            warrior_now = time.get_ticks()
+                                if not hasattr(warrior, "last_attack_time"):
+                                    warrior.last_attack_time = 0
 
-                            if getattr(knight, "attacking", False) and warrior_now - warrior.last_attack_time >= 3000:
-                                warrior.last_attack_time = warrior_now
-                                warrior.defend()
-                            else:
-                                warrior.attack("Skeleton_Warrior")    
-                            
-                            if getattr(warrior, "attacking", False) and not getattr(warrior, "play_once_done", False):
-                                if not getattr(knight, "took_damage", False) and not getattr(knight, "dead", False):
+                                warrior_now = time.get_ticks()
 
-                                    blocked = False
-                                    try:
-                                        if getattr(knight, "defending", False):
-                                            if getattr(knight, "direction", None) != getattr(warrior, "direction", None):
-                                                blocked = True
-                                    except Exception:
+                                if getattr(knight, "attacking", False) and warrior_now - warrior.last_attack_time >= 3000:
+                                    warrior.last_attack_time = warrior_now
+                                    warrior.defend()
+                                else:
+                                    warrior.attack("Skeleton_Warrior")    
+                                
+                                if getattr(warrior, "attacking", False) and not getattr(warrior, "play_once_done", False):
+                                    if not getattr(knight, "took_damage", False) and not getattr(knight, "dead", False):
+
                                         blocked = False
-
-                                    if not blocked:
-
-                                        knight.hp = max(0, knight.hp - 20)
-                                        knight.took_damage = True
                                         try:
-                                            knight.change_animation(f"{character}/Hurt.png", 128, 128, play_once=True)
+                                            if getattr(knight, "defending", False):
+                                                if getattr(knight, "direction", None) != getattr(warrior, "direction", None):
+                                                    blocked = True
                                         except Exception:
-                                            pass
-                                        knight.resize(200, 200)
+                                            blocked = False
 
-                                        if knight.hp <= 0:
-                                            lives -= 1
+                                        if not blocked:
+
+                                            knight.hp = max(0, knight.hp - 20)
+                                            knight.took_damage = True
                                             try:
-                                                hearts.remove(hearts[-1])
+                                                knight.change_animation(f"{character}/Hurt.png", 128, 128, play_once=True)
                                             except Exception:
                                                 pass
-                                            knight.hp = 100
-                                            if lives == 0:
-                                                knight.die(character)
+                                            knight.resize(200, 200)
 
-                                    else:
-                                        knight.took_damage = False
+                                            if knight.hp <= 0:
+                                                lives -= 1
+                                                try:
+                                                    hearts.remove(hearts[-1])
+                                                except Exception:
+                                                    pass
+                                                knight.hp = 100
+                                                if lives == 0:
+                                                    knight.die(character)
 
-                            if getattr(warrior, "play_once_done", False):
-                                knight.took_damage = False
-                        
-                        else:
-                            warrior.move(knight.rect.centerx, "Skeleton_Warrior")
+                                        else:
+                                            knight.took_damage = False
 
-                    if getattr(knight, "dead", False) and getattr(knight, "play_once_done", False):
-                        if not highscore_written:
-                            try:
-                                with open("highscore.txt", "a") as file:
-                                    file.write("\n" + str(scorenum))
-                            except Exception:
-                                pass
-                            highscore_written = True
-                        ignore_return = True
-                        is_home = None
-                        StartScreen.ignore_return_local = True
-                        StartScreen.ignore_until = time.get_ticks() + 300
-                        is_home = StartScreen.game_over(window)
-                        if is_home != None and not is_home:
-                            game_reset()
-                        
-                    if knight_hitbox.colliderect(warrior.get_hitbox()) and getattr(knight, "attacking", True) and not knight.damage_dealt:
-                        
-                        if not getattr(warrior, "defending", True):
-                            warrior.hp -= 1 * knight.strenght 
-                            knight.damage_dealt = True
-                            if warrior.hp <= 0:
-                                scorenum += 250
-                                warrior.die("Skeleton_Warrior", new_wave, current_lives)
-                                new_wave = False
+                                if getattr(warrior, "play_once_done", False):
+                                    knight.took_damage = False
+                            
+                            else:
+                                warrior.move(knight.rect.centerx, "Skeleton_Warrior")
+
+                        if getattr(knight, "dead", False) and getattr(knight, "play_once_done", False):
+                            if not highscore_written:
+                                try:
+                                    with open("highscore.txt", "a") as file:
+                                        file.write("\n" + str(scorenum))
+                                except Exception:
+                                    pass
+                                highscore_written = True
+                            ignore_return = True
+                            is_home = None
+                            StartScreen.ignore_return_local = True
+                            StartScreen.ignore_until = time.get_ticks() + 300
+                            is_home = StartScreen.game_over(window)
+                            if is_home != None and not is_home:
+                                game_reset()
+                            
+                        if knight_hitbox.colliderect(warrior.get_hitbox()) and getattr(knight, "attacking", True) and not knight.damage_dealt:
+                            
+                            if not getattr(warrior, "defending", True):
+                                warrior.hp -= 1 * knight.strenght 
+                                knight.damage_dealt = True
+                                if warrior.hp <= 0:
+                                    scorenum += 250
+                                    warrior.die("Skeleton_Warrior", new_wave, current_lives)
+                                    new_wave = False
                     
                 for skeleton in skeletons:
                     

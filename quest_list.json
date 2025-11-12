@@ -22,17 +22,17 @@
       "Kill 200 Spearmen"
     ],
     "isCompleted": [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
       false,
       false
     ],
     "objectives": {
-      "skeletonsDefeated": 113,
+      "skeletonsDefeated": 0,
       "requiredSkeletons": [
         1,
         10,
@@ -126,11 +126,11 @@
       "Kill 50 enemies that spawn from the left"
     ],
     "isCompleted": [
-      true,
-      true
+      false,
+      false
     ],
     "objectives": {
-      "leftDefeated": 80,
+      "leftDefeated": 0,
       "requiredLeft": [
         10,
         50
@@ -154,11 +154,11 @@
       "Kill 50 enemies that spawn from the right"
     ],
     "isCompleted": [
-      true,
-      true
+      false,
+      false
     ],
     "objectives": {
-      "rightDefeated": 50,
+      "rightDefeated": 0,
       "requiredRight": [
         10,
         50
@@ -184,12 +184,12 @@
       "Beat wave 20"
     ],
     "isCompleted": [
-      true,
+      false,
       false,
       false
     ],
     "objectives": {
-      "wavesDefeated": 1,
+      "wavesDefeated": 0,
       "requiredWaves": [
         3,
         10,
@@ -215,8 +215,8 @@
       "Kill only skeletons for 3 waves"
     ],
     "isCompleted": [
-      true,
-      true
+      false,
+      false
     ],
     "objectives": {
       "requiredWaves": [
@@ -242,8 +242,8 @@
       "Kill only archers for 3 waves"
     ],
     "isCompleted": [
-      true,
-      true
+      false,
+      false
     ],
     "objectives": {
       "requiredWaves": [
@@ -269,12 +269,12 @@
       "Kill 15 enemies from each side in one run"
     ],
     "isCompleted": [
-      true,
-      true
+      false,
+      false
     ],
     "objectives": {
-      "rightDefeated": 50,
-      "leftDefeated": 80,
+      "rightDefeated": 0,
+      "leftDefeated": 0,
       "requiredRight": [
         5,
         15
@@ -302,8 +302,8 @@
       "Beat 3 waves without loosing a heart"
     ],
     "isCompleted": [
-      true,
-      true
+      false,
+      false
     ],
     "objectives": {
       "wavesDefeated": 0,
