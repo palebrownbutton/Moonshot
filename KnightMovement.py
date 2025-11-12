@@ -1,6 +1,6 @@
 from pygame import *
 from AnimatedSprite import *
-
+import json
 
 class Knight(AnimatedSprite):
 
@@ -8,12 +8,15 @@ class Knight(AnimatedSprite):
         super().__init__(sprite_sheet, x, y, w, h)
         self.knight_number = knight_number
 
+        with open ("upgrades.json", "r") as file:
+            attributes = json.load(file)[0]
+
         self.velocity_y = 0
         self.on_ground = True
         self.attacking = False
         self.defending = False
-        self.hp = 100
-        self.strenght = 10
+        self.hp = attributes["hp"]
+        self.strength = attributes["strength"]
         self.dead = False
         self.took_damage = False
 
@@ -133,4 +136,4 @@ class Knight(AnimatedSprite):
             return
 
         self.defending = False
-        self.change_animation(f"{knight_number}/Idle.png", 128, 128)
+        self.change_animation(f"{knight_number}/Idle.png", 128, 128)#

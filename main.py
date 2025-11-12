@@ -283,7 +283,7 @@ while True:
 
                 current_time = time.get_ticks() - paused_time
 
-                if current_time - heart_spawn_time > 40000 and len(hearts) < 5:
+                if current_time - heart_spawn_time > 60000 and len(hearts) < 5:
                     heart_spawn_time = current_time
                     new_heart = StillImage(random.randint(-117, 710), random.choice([600, 715]), 45, 45, "hearts.png")
                     collectibles.append({
@@ -392,7 +392,7 @@ while True:
                                 distance = skeleton.rect.x - knight.rect.x
 
                             if knight.get_hitbox().colliderect(skeleton.get_hitbox()) and not knight.damage_dealt:
-                                skeleton.hp -= 2 * knight.strenght
+                                skeleton.hp -= 2 * knight.strength
                                 knight.damage_dealt = True
 
                                 if skeleton.hp <= 0:
@@ -474,7 +474,7 @@ while True:
 
                         if knight_hitbox.colliderect(archer.get_hitbox()) and getattr(knight, "attacking", True) and not knight.damage_dealt:
                             
-                            archer.hp -= 1.5 * knight.strenght 
+                            archer.hp -= 1.5 * knight.strength 
                             knight.damage_dealt = True
                             if archer.hp <= 0:
                                 scorenum += 250
@@ -702,7 +702,7 @@ while True:
                         if knight_hitbox.colliderect(warrior.get_hitbox()) and getattr(knight, "attacking", True) and not knight.damage_dealt:
                             
                             if not getattr(warrior, "defending", True):
-                                warrior.hp -= 1 * knight.strenght 
+                                warrior.hp -= 1 * knight.strength 
                                 knight.damage_dealt = True
                                 if warrior.hp <= 0:
                                     scorenum += 250

@@ -29,13 +29,13 @@ class Buttons():
 
 play = Buttons(120, 170, 550, 550, "start_button.png", "play")
 instructions_button = Buttons(100, 430, 600, 600, "instructions_button.png", "instructions")
-start_view_quests = Buttons(100, 300, 600, 600, "view_quests_button.png", "view_quests")
+start_view_quests = Buttons(100, 300, 600, 600, "progress.png", "view_quests")
 background = StillImage(0, 0, 800, 800, "select_background.png")
 
 text1 = font.SysFont("Arial", 50)
-font.rendered_text = text1.render("Welcome to Bones and Blades!", True, (255, 255, 255))
+font.rendered_title = text1.render("Welcome to Bones and Blades!", True, (255, 255, 255))
 text2 = font.SysFont("Arial", 30)
-font.rendered_subtext = text2.render("By Simona", True, (255, 255, 255))
+font.rendered_author = text2.render("By Simona", True, (255, 255, 255))
 
 logo = StillImage(303, 160, 200, 200, "Bones and Blades Logo.png")
 
@@ -59,8 +59,8 @@ def start_screen(window):
         play.draw(window, is_selected)
         instructions_button.draw(window, is_selected)
         start_view_quests.draw(window, is_selected)
-        window.blit(font.rendered_text, (120, 50))
-        window.blit(font.rendered_subtext, (340, 110))
+        window.blit(font.rendered_title, (120, 50))
+        window.blit(font.rendered_author, (340, 110))
         logo.draw(window)
         return True
 
@@ -69,8 +69,8 @@ def start_screen(window):
         play.draw(window, is_selected)
         instructions_button.draw(window, is_selected)
         start_view_quests.draw(window, is_selected)
-        window.blit(font.rendered_text, (120, 50))
-        window.blit(font.rendered_subtext, (340, 110))
+        window.blit(font.rendered_title, (120, 50))
+        window.blit(font.rendered_author, (340, 110))
         logo.draw(window)
         if pressed[K_RETURN]:
             return True
@@ -84,8 +84,8 @@ def start_screen(window):
         instructions_button.draw(window, is_selected)
         start_view_quests.draw(window, is_selected)
         
-        window.blit(font.rendered_text, (120, 50))
-        window.blit(font.rendered_subtext, (340, 110))
+        window.blit(font.rendered_title, (120, 50))
+        window.blit(font.rendered_author, (340, 110))
         logo.draw(window)
 
         pressed = key.get_pressed()
@@ -182,6 +182,7 @@ quest_list_word_text = font.SysFont(None, 100)
 font.rendered_quest_list_word = quest_list_word_text.render("Quests:", True, (255, 255, 255))
 
 padlock = StillImage(555, 20, 60, 60, "padlock.png")
+upgrades_button = StillImage(550, -100, 300, 300, "upgrades.png")
 
 quests_boxes = []
 total_levels = sum(len(quest["title"]) for quest in quests.values())
@@ -194,85 +195,122 @@ for i in range(total_levels):
 scroll_y = 0
 scroll_speed = 20
 TOP_LIMIT = 80
+upgrades_open = False
 
 def quests_menu(window):
-    global instructions_open, ignore_return_local, ignore_until, quests_open, scroll_y, scroll_speed
+    global instructions_open, ignore_return_local, ignore_until, quests_open, scroll_y, scroll_speed, upgrades_open
 
-    mouse_x, mouse_y = mouse.get_pos()
+    if not upgrades_open:
 
-    quest_title_mapping = []
-    for idx, (quest_id, quest) in enumerate(quests.items()):
-        completed_levels = [i for i, done in enumerate(quest["isCompleted"]) if done]
-        unlocked_level = max(completed_levels, default=-1) + 1
-        for level_index in range(len(quest["title"])):
-            quest_title_mapping.append((quest_id, level_index, level_index > unlocked_level))
+        mouse_x, mouse_y = mouse.get_pos()
 
-    max_scroll = max((len(quest_title_mapping)* 80 - (window.get_height() - TOP_LIMIT), 0)) + 50
+        quest_title_mapping = []
+        for idx, (quest_id, quest) in enumerate(quests.items()):
+            completed_levels = [i for i, done in enumerate(quest["isCompleted"]) if done]
+            unlocked_level = max(completed_levels, default=-1) + 1
+            for level_index in range(len(quest["title"])):
+                quest_title_mapping.append((quest_id, level_index, level_index > unlocked_level))
 
-    background.draw(window)
-    house_button.draw(window)
-    window.blit(font.rendered_quest_list_word, (150, 20))
-    
-    for i, (quest_id, level_index, is_locked) in enumerate(quest_title_mapping):
+        max_scroll = max((len(quest_title_mapping)* 80 - (window.get_height() - TOP_LIMIT), 0)) + 50
 
-        y_offset = 120 + (80 * i) + scroll_y
-       
-        quest = quests[quest_id]
+        background.draw(window)
+        house_button.draw(window)
+        upgrades_button.draw(window)
+        window.blit(font.rendered_quest_list_word, (150, 20))
 
-        if y_offset > TOP_LIMIT:
+        for i, (quest_id, level_index, is_locked) in enumerate(quest_title_mapping):
 
-            if is_locked:
-                padlock.rect.y = y_offset
-                padlock.draw(window)
-
-            title_font = font.SysFont(None, 50)
-            detail_font = font.SysFont(None, 30)
-            rewards_font = font.SysFont(None, 50)
-
-            rendered_quest_title = title_font.render(quest["title"][level_index], True, (255, 255, 255))
-            rendered_quest_detail = detail_font.render(quest["details"][level_index], True, (200, 200, 200))
+            y_offset = 120 + (80 * i) + scroll_y
             
-            xp_amount = quest["reward"]["xp"][level_index]
-            rendered_quest_rewards = rewards_font.render(f"{xp_amount} XP", True, (212, 148, 11))
+            quest = quests[quest_id]
 
-            adjusted_box = Rect(150, y_offset - 10, 630, 80)
-            draw.rect(window, (135, 84, 3), adjusted_box, width=2)
+            if y_offset > TOP_LIMIT:
 
-            if quest["isCompleted"][level_index]:
-                s = Surface((630, 80), SRCALPHA)
-                s.fill((58, 117, 6, 200))
-                window.blit(s, (adjusted_box.x, adjusted_box.y))
+                if is_locked:
+                    padlock.rect.y = y_offset
+                    padlock.draw(window)
 
-            elif not quest["isCompleted"][level_index]:
-                first_incomplete = False
-                for li in range(len(quest["title"])):
-                    if not quest["isCompleted"][li]:
-                        if li == level_index:
-                            first_incomplete = True
-                        break
-                if first_incomplete:
+                title_font = font.SysFont(None, 50)
+                detail_font = font.SysFont(None, 30)
+                rewards_font = font.SysFont(None, 50)
+
+                rendered_quest_title = title_font.render(quest["title"][level_index], True, (255, 255, 255))
+                rendered_quest_detail = detail_font.render(quest["details"][level_index], True, (200, 200, 200))
+                
+                xp_amount = quest["reward"]["xp"][level_index]
+                rendered_quest_rewards = rewards_font.render(f"{xp_amount} XP", True, (212, 148, 11))
+
+                adjusted_box = Rect(150, y_offset - 10, 630, 80)
+                draw.rect(window, (135, 84, 3), adjusted_box, width=2)
+
+                if quest["isCompleted"][level_index]:
                     s = Surface((630, 80), SRCALPHA)
-                    s.fill((166, 41, 3, 100))
+                    s.fill((58, 117, 6, 200))
                     window.blit(s, (adjusted_box.x, adjusted_box.y))
 
-            window.blit(rendered_quest_title, (155, y_offset))
-            window.blit(rendered_quest_detail, (170, y_offset + 40))
-            window.blit(rendered_quest_rewards, (625, y_offset + 15))
+                elif not quest["isCompleted"][level_index]:
+                    first_incomplete = False
+                    for li in range(len(quest["title"])):
+                        if not quest["isCompleted"][li]:
+                            if li == level_index:
+                                first_incomplete = True
+                            break
+                    if first_incomplete:
+                        s = Surface((630, 80), SRCALPHA)
+                        s.fill((166, 41, 3, 100))
+                        window.blit(s, (adjusted_box.x, adjusted_box.y))
+
+                window.blit(rendered_quest_title, (155, y_offset))
+                window.blit(rendered_quest_detail, (170, y_offset + 40))
+                window.blit(rendered_quest_rewards, (625, y_offset + 15))
+
+        if (mouse_x >= house_button.rect.x and mouse_x <= house_button.rect.x + house_button.rect.width and mouse_y >= house_button.rect.y and mouse_y <= house_button.rect.y + house_button.rect.height):
+            if mouse.get_pressed()[0]:
+                quests_open = False
+                ignore_return_local = True
+                ignore_until = time.get_ticks() + 300
+
+        if (mouse_x >= upgrades_button.rect.x and mouse_x <= upgrades_button.rect.x + upgrades_button.rect.width and mouse_y >= upgrades_button.rect.y and mouse_y <= upgrades_button.rect.y + upgrades_button.rect.height):
+            if mouse.get_pressed()[0]:
+                upgrades_open = True
+
+        for e in event.get():
+            if e.type == QUIT:
+                exit()
+
+            elif e.type == MOUSEWHEEL:
+                scroll_y += e.y * scroll_speed
+                scroll_y = max(min(scroll_y, 0), -max_scroll)
+
+    else:
+        upgrade_menu(window)
+
+    return True
     
-    if (mouse_x >= house_button.rect.x and mouse_x <= house_button.rect.x + house_button.rect.width and mouse_y >= house_button.rect.y and mouse_y <= house_button.rect.y + house_button.rect.height):
-        if mouse.get_pressed()[0]:
-            quests_open = False
-            ignore_return_local = True
-            ignore_until = time.get_ticks() + 300
+upgrades_tables = []
+for i in range(3):
+    upgrades_table = Rect(75, 100 + (i * 200), 650, 200)
+    upgrades_tables.append(upgrades_table)
 
-    for e in event.get():
-        if e.type == QUIT:
-            exit()
+with open("upgrades.json", "r") as file:
+    knight_attributes = json.load(file)[0]
 
-        elif e.type == MOUSEWHEEL:
-            scroll_y += e.y * scroll_speed
-            scroll_y = max(min(scroll_y, 0), -max_scroll)
+hp_text = font.SysFont(None, 60)
+font.rendered_hp_text = hp_text.render(f"HP: {knight_attributes['hp']}", True, (255, 255, 255))
+strength_text = font.SysFont(None, 60)
+font.rendered_strength_text = strength_text.render(f"STRENGTH: {knight_attributes['strength']}", True, (255, 255, 255))
+lives_rate = font.SysFont(None, 60)
+font.rendered_lives_rate = lives_rate.render(f"LIVES SPAWN RATE: {int(knight_attributes['life spawn time'] / 1000)} S", True, (255, 255, 255))
 
+
+def upgrade_menu(window):
+
+    background.draw(window)
+    for upgrades_table in upgrades_tables:
+        draw.rect(window, (135, 84, 3), upgrades_table, width=2)
+    window.blit(font.rendered_hp_text, (85, 185))
+    window.blit(font.rendered_strength_text, (85, 385))
+    window.blit(font.rendered_lives_rate, (85, 585))
     return True
 
 playAgian = Buttons(100, 200, 600, 600, "play_again_button.png", "playAgain")
