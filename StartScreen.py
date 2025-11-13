@@ -287,30 +287,50 @@ def quests_menu(window):
 
     return True
     
-upgrades_tables = []
-for i in range(3):
-    upgrades_table = Rect(75, 100 + (i * 200), 650, 200)
-    upgrades_tables.append(upgrades_table)
+rect1 = Rect(50, 155, 200, 450)
+overlay1 = Surface(rect1.size, SRCALPHA)
+overlay1.fill((62, 64, 63, 180))
+rect2 = Rect(300, 155, 200, 450)
+overlay2 = Surface(rect2.size, SRCALPHA)
+overlay2.fill((62, 64, 63, 180))
+rect3 = Rect(550, 155, 200, 450)
+overlay3 = Surface(rect3.size, SRCALPHA)
+overlay3.fill((62, 64, 63, 180))
 
 with open("upgrades.json", "r") as file:
     knight_attributes = json.load(file)[0]
 
 hp_text = font.SysFont(None, 60)
-font.rendered_hp_text = hp_text.render(f"HP: {knight_attributes['hp']}", True, (255, 255, 255))
-strength_text = font.SysFont(None, 60)
-font.rendered_strength_text = strength_text.render(f"STRENGTH: {knight_attributes['strength']}", True, (255, 255, 255))
-lives_rate = font.SysFont(None, 60)
-font.rendered_lives_rate = lives_rate.render(f"LIVES SPAWN RATE: {int(knight_attributes['life spawn time'] / 1000)} S", True, (255, 255, 255))
+strength_text = font.SysFont(None, 30)
+font.rendered_hp_text = strength_text.render(f"HP:", True, (255, 255, 255))
+font.rendered_hp_num = hp_text.render(f"{knight_attributes['hp']}", True, (255, 255, 255))
+font.rendered_strength_text = strength_text.render(f"Strength:", True, (255, 255, 255))
+font.rendered_strength_num = hp_text.render(f"{knight_attributes['strength']}", True, (255, 255, 255))
+lives_rate = font.SysFont(None, 30)
+font.rendered_lives_rate = lives_rate.render(f"Lives spawn rate:", True, (255, 255, 255))
+font.rendered_lives_rate_num = hp_text.render(f"{int(knight_attributes['life spawn time'] / 1000)} s", True, (255, 255, 255))
 
+strength_icon = StillImage(40, 173, 228, 130, "strength_image.png")
+hp_icon = StillImage(333, 175, 130, 130, "hearts.png")
+lives_rate_icon = StillImage(577, 160, 155, 155, "clock.png")
 
 def upgrade_menu(window):
 
     background.draw(window)
-    for upgrades_table in upgrades_tables:
-        draw.rect(window, (135, 84, 3), upgrades_table, width=2)
-    window.blit(font.rendered_hp_text, (85, 185))
-    window.blit(font.rendered_strength_text, (85, 385))
-    window.blit(font.rendered_lives_rate, (85, 585))
+    
+    window.blit(overlay1, rect1.topleft)
+    window.blit(overlay2, rect2.topleft)
+    window.blit(overlay3, rect3.topleft)
+
+    window.blit(font.rendered_hp_text, (340, 330))
+    window.blit(font.rendered_strength_text, (70, 330))
+    window.blit(font.rendered_lives_rate, (565, 330))
+    window.blit(font.rendered_hp_num, (390, 325))
+    window.blit(font.rendered_strength_num, (177, 325))
+    window.blit(font.rendered_lives_rate_num, (612, 360))
+    strength_icon.draw(window)
+    hp_icon.draw(window)
+    lives_rate_icon.draw(window)
     return True
 
 playAgian = Buttons(100, 200, 600, 600, "play_again_button.png", "playAgain")
