@@ -249,7 +249,7 @@ while True:
             pressed_any = key.get_pressed()
             if ignore_return and not pressed_any[K_RETURN]:
                 ignore_return = False
-            character = select_character(window, ignore_return)
+            character, is_home = select_character(window, ignore_return)
 
         else:
 

@@ -1,7 +1,7 @@
 from pygame import *
 from AnimatedSprite import *
 from KnightMovement import Knight
-
+from StillImage import *
 
 class Background:
 
@@ -34,9 +34,12 @@ position = 2
 last_move = 0
 move_delay = 150
 
+house_button = StillImage(5, 10, 90, 90, "house.png")
 
 def select_character(window, ignore_return=False):
     global position, last_move
+
+    mouse_x, mouse_y = mouse.get_pos()
 
     background.draw(window)
 
@@ -46,9 +49,11 @@ def select_character(window, ignore_return=False):
     knight2.draw(window)
     knight3.draw(window)
 
+    house_button.draw(window)
+
     pressed = key.get_pressed()
     if ignore_return and pressed[K_RETURN]:
-        return None
+        return None, False
     now = time.get_ticks()
     if pressed[K_LEFT] and now - last_move >= move_delay:
         if position > 1:
@@ -65,11 +70,14 @@ def select_character(window, ignore_return=False):
 
     if pressed[K_RETURN]:
         if position == 1:
-            return "Knight_1"
+            return "Knight_1", False
         elif position == 2:
-            return "Knight_2"
+            return "Knight_2", False
         elif position == 3:
-            return "Knight_3"
+            return "Knight_3", False
+        
+    if pressed[K_ESCAPE]:
+        return None, True
 
     if position == 1:
         box.rect.x = xpostions[0]
@@ -77,3 +85,9 @@ def select_character(window, ignore_return=False):
         box.rect.x = xpostions[1]
     elif position == 3:
         box.rect.x = xpostions[2]
+
+    if (mouse_x >= house_button.rect.x and mouse_x <= house_button.rect.x + house_button.rect.width and mouse_y >= house_button.rect.y and mouse_y <= house_button.rect.y + house_button.rect.height):
+        if mouse.get_pressed()[0]:
+            return None, True
+
+    return None, False
