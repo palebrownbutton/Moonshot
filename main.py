@@ -348,7 +348,6 @@ while True:
                         warrior_last_spawn_time = warrior_current_time
                         warriors_active = True
 
-
                 moved = False
 
                 pressed_keys = key.get_pressed()

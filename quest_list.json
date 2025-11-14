@@ -1,6 +1,5 @@
-[
-  {
-    "id": 1,
+{
+  "1": {
     "title": [
       "First Blood",
       "Bone Collector",
@@ -21,29 +20,6 @@
       "Kill 150 Spearmen",
       "Kill 200 Spearmen"
     ],
-    "isCompleted": [
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    "objectives": {
-      "skeletonsDefeated": 0,
-      "requiredSkeletons": [
-        1,
-        10,
-        25,
-        50,
-        75,
-        100,
-        150,
-        200
-      ]
-    },
     "reward": {
       "xp": [
         50,
@@ -55,10 +31,32 @@
         700,
         1000
       ]
+    },
+    "isCompleted": [
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "objectives": {
+      "skeletonsDefeated": 2,
+      "requiredSkeletons": [
+        1,
+        10,
+        25,
+        50,
+        75,
+        100,
+        150,
+        200
+      ]
     }
   },
-  {
-    "id": 2,
+  "2": {
     "title": [
       "One Less Eye in The Sky",
       "Silent Arrow",
@@ -79,6 +77,18 @@
       "Kill 150 archers",
       "Kill 200 archers"
     ],
+    "reward": {
+      "xp": [
+        250,
+        300,
+        375,
+        400,
+        500,
+        700,
+        850,
+        1500
+      ]
+    },
     "isCompleted": [
       false,
       false,
@@ -101,22 +111,9 @@
         150,
         200
       ]
-    },
-    "reward": {
-      "xp": [
-        250,
-        300,
-        375,
-        400,
-        500,
-        700,
-        850,
-        1500
-      ]
     }
   },
-  {
-    "id": 3,
+  "3": {
     "title": [
       "Left Side Sweep",
       "Leftward Onslaught"
@@ -125,26 +122,25 @@
       "Kill 10 enemies that spawn from the left",
       "Kill 50 enemies that spawn from the left"
     ],
-    "isCompleted": [
-      false,
-      false
-    ],
-    "objectives": {
-      "leftDefeated": 0,
-      "requiredLeft": [
-        10,
-        50
-      ]
-    },
     "reward": {
       "xp": [
         300,
         500
       ]
+    },
+    "isCompleted": [
+      false,
+      false
+    ],
+    "objectives": {
+      "leftDefeated": 1,
+      "requiredLeft": [
+        10,
+        50
+      ]
     }
   },
-  {
-    "id": 4,
+  "4": {
     "title": [
       "Right Side Rampage",
       "Right Side Ruin"
@@ -153,26 +149,25 @@
       "Kill 10 enemies that spawn from the right",
       "Kill 50 enemies that spawn from the right"
     ],
-    "isCompleted": [
-      false,
-      false
-    ],
-    "objectives": {
-      "rightDefeated": 0,
-      "requiredRight": [
-        10,
-        50
-      ]
-    },
     "reward": {
       "xp": [
         300,
         500
       ]
+    },
+    "isCompleted": [
+      false,
+      false
+    ],
+    "objectives": {
+      "rightDefeated": 1,
+      "requiredRight": [
+        10,
+        50
+      ]
     }
   },
-  {
-    "id": 5,
+  "5": {
     "title": [
       "Wave Rider",
       "Hold the Line",
@@ -183,6 +178,13 @@
       "Beat wave 10",
       "Beat wave 20"
     ],
+    "reward": {
+      "xp": [
+        150,
+        700,
+        1700
+      ]
+    },
     "isCompleted": [
       false,
       false,
@@ -195,17 +197,9 @@
         10,
         20
       ]
-    },
-    "reward": {
-      "xp": [
-        150,
-        700,
-        1700
-      ]
     }
   },
-  {
-    "id": 6,
+  "6": {
     "title": [
       "Skeleton Slayer",
       "Bone Reaper"
@@ -214,6 +208,12 @@
       "Kill only skeletons for one full wave",
       "Kill only skeletons for 3 waves"
     ],
+    "reward": {
+      "xp": [
+        140,
+        350
+      ]
+    },
     "isCompleted": [
       false,
       false
@@ -223,16 +223,9 @@
         1,
         3
       ]
-    },
-    "reward": {
-      "xp": [
-        140,
-        350
-      ]
     }
   },
-  {
-    "id": 7,
+  "7": {
     "title": [
       "Archer Annihilator",
       "Arrowbane Executioner"
@@ -241,6 +234,12 @@
       "Kill only archers for one full wave",
       "Kill only archers for 3 waves"
     ],
+    "reward": {
+      "xp": [
+        140,
+        350
+      ]
+    },
     "isCompleted": [
       false,
       false
@@ -250,16 +249,9 @@
         1,
         3
       ]
-    },
-    "reward": {
-      "xp": [
-        140,
-        350
-      ]
     }
   },
-  {
-    "id": 8,
+  "8": {
     "title": [
       "Split Sweep",
       "Evenhanded Execution"
@@ -268,13 +260,19 @@
       "Kill 5 enemies from each side in one run",
       "Kill 15 enemies from each side in one run"
     ],
+    "reward": {
+      "xp": [
+        200,
+        600
+      ]
+    },
     "isCompleted": [
       false,
       false
     ],
     "objectives": {
-      "rightDefeated": 0,
-      "leftDefeated": 0,
+      "rightDefeated": 1,
+      "leftDefeated": 1,
       "requiredRight": [
         5,
         15
@@ -283,16 +281,9 @@
         5,
         15
       ]
-    },
-    "reward": {
-      "xp": [
-        200,
-        600
-      ]
     }
   },
-  {
-    "id": 9,
+  "9": {
     "title": [
       "Untouched Fury",
       "Flawless Onslaught"
@@ -301,6 +292,12 @@
       "Beat 1 wave without loosing a heart",
       "Beat 3 waves without loosing a heart"
     ],
+    "reward": {
+      "xp": [
+        600,
+        1500
+      ]
+    },
     "isCompleted": [
       false,
       false
@@ -311,12 +308,6 @@
         1,
         3
       ]
-    },
-    "reward": {
-      "xp": [
-        600,
-        1500
-      ]
     }
   }
-]
+}

@@ -25,92 +25,118 @@ def quest_list2():
 
         return json.load(file)
 
+def quest_list3():
+
+    with open("quest_list.json", "r") as file:
+        
+        quests = {int(k): v for k, v in json.load(file).items()}#
+    return quests
+
 class QuestLevel():
 
     def __init__(self, quest_id):
         
         self.quest_id = quest_id
         self.level = 0
+        self.has_given_xp = False
     
     def update(self, quest):
 
+        old_level = self.level
         while self.level < len(quest["isCompleted"]) and quest["isCompleted"][self.level]:
-                self.level += 1
-
+            self.level += 1
         if self.level >= len(quest["isCompleted"]):
             self.level = len(quest["isCompleted"]) - 1
+        
+        if self.level != old_level:
+            self.has_given_xp = False
 
-quests = quest_list1()
-quests_levels = [QuestLevel(qid) for qid in quests.keys()]
-for quest_id in quests.keys():
-    quests_levels.append(QuestLevel(quest_id))
+quests = quest_list3()
+quests_levels = {qid: QuestLevel(qid) for qid in quests.keys()}
 
 skeleton_current_wave = 0
 archer_current_wave = 0
 
+xp = 0
+
 def quest_update(enemy_type, direction, wave, current_archers, current_skeletons, hearts):
-    global quest, quests_levels, skeleton_current_wave, archer_current_wave
 
-    quests = quest_list2()
+    global quest, quests_levels, skeleton_current_wave, archer_current_wave, xp
 
-    for idx, quest in enumerate(quests):
-        quest_level = quests_levels[idx]
+    for quest_id, quest in quests.items():
+        quest_level = quests_levels[quest_id]
+        gained_xp = False
 
-        if "skeletonsDefeated" in quest["objectives"] and enemy_type == "Skeleton_Spearman" and quest["id"] == 1:
+        if "skeletonsDefeated" in quest["objectives"] and enemy_type == "Skeleton_Spearman" and quest_id == 1:
             quest["objectives"]["skeletonsDefeated"] += 1
             if quest["objectives"]["skeletonsDefeated"] >= quest["objectives"]["requiredSkeletons"][quest_level.level]:
                 quest["isCompleted"][quest_level.level] = True
+                gained_xp = True
 
-        if "archersDefeated" in quest["objectives"] and enemy_type == "Skeleton_Archer" and quest["id"] == 2:
+        if "archersDefeated" in quest["objectives"] and enemy_type == "Skeleton_Archer" and quest_id == 2:
             quest["objectives"]["archersDefeated"] += 1
             if quest["objectives"]["archersDefeated"] >= quest["objectives"]["requiredArchers"][quest_level.level]:
                 quest["isCompleted"][quest_level.level] = True
+                gained_xp = True
             
         if direction == "left" and "leftDefeated" in quest["objectives"]:
             quest["objectives"]["leftDefeated"] += 1
-            if quest["id"] == 3:
+            if quest_id == 3:
                 if quest["objectives"]["leftDefeated"] >= quest["objectives"]["requiredLeft"][quest_level.level]:
                     quest["isCompleted"][quest_level.level] = True
+                    gained_xp = True
 
         if direction == "right" and "rightDefeated" in quest["objectives"]:
             quest["objectives"]["rightDefeated"] += 1
-            if quest["id"] == 4:
+            if quest_id == 4:
                 if quest["objectives"]["rightDefeated"] >= quest["objectives"]["requiredRight"][quest_level.level]:
                     quest["isCompleted"][quest_level.level] = True
+                    gained_xp = True
 
         if wave is not None and "wavesDefeated" in quest["objectives"]:
             quest["objectives"]["wavesDefeated"] += 1
-            if quest["id"] == 5:
+            if quest_id == 5:
                 if quest["objectives"]["wavesDefeated"] > quest["objectives"]["requiredWaves"][quest_level.level]:
                     quest["isCompleted"][quest_level.level] = True
+                    gained_xp = True
 
         if wave is not None and current_archers == 0:
             archer_current_wave += 1
 
-        if "requiredWaves" in quest["objectives"] and quest["id"] == 6:
+        if "requiredWaves" in quest["objectives"] and quest_id == 6:
             if current_archers == 0 and archer_current_wave > quest["objectives"]["requiredWaves"][quest_level.level]:
                 quest["isCompleted"][quest_level.level] = True
+                gained_xp = True
 
         if wave is not None and current_skeletons == 0:
             skeleton_current_wave += 1
 
-        if "requiredWaves" in quest["objectives"] and quest["id"] == 7:
+        if "requiredWaves" in quest["objectives"] and quest_id == 7:
             if current_skeletons == 0 and skeleton_current_wave > quest["objectives"]["requiredWaves"][quest_level.level]:
                 quest["isCompleted"][quest_level.level] = True
+                gained_xp = True
 
-        if "rightDefeated" in quest["objectives"] and "leftDefeated" in quest["objectives"] and quest["id"] == 8:
+        if "rightDefeated" in quest["objectives"] and "leftDefeated" in quest["objectives"] and quest_id == 8:
             if quest["objectives"]["rightDefeated"] >= quest["objectives"]["requiredRight"][quest_level.level] and quest["objectives"]["leftDefeated"] >= quest["objectives"]["requiredLeft"][quest_level.level]:
                     quest["isCompleted"][quest_level.level] = True
+                    gained_xp = True
 
-        if hearts == False and quest["id"] == 9:
-            if quest["objectives"]["requiredWaves"][quest_level.level] >= quest["objectives"]["wavesDefeated"]:
-                quest["isCompleted"][quest_level.level] = True
-        elif hearts == True and quest["id"] == 9:
-            quest["objectives"]["wavesDefeated"] = 0
+        # if hearts == False and quest_id == 9:
+        #     if quest["objectives"]["requiredWaves"][quest_level.level] >= quest["objectives"]["wavesDefeated"]:
+        #         quest["isCompleted"][quest_level.level] = True
+        #         gained_xp = True
+        # elif hearts == True and quest_id == 9:
+        #     quest["objectives"]["wavesDefeated"] = 0
+
+        if gained_xp and not quest_level.has_given_xp:
+            xp += quest["reward"]["xp"][quest_level.level]
+            quest_level.has_given_xp = True
+            gained_xp = False
+            print(xp)
 
         quest_level.update(quest)
 
     with open ("quest_list.json", "w") as file:
-        json.dump(quests, file, indent=2)
+        json.dump({str(k): v for k, v in quests.items()}, file, indent=2)
 
     
