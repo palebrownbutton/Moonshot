@@ -42,6 +42,16 @@
       false,
       false
     ],
+    "has_give_xp": [
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
     "objectives": {
       "skeletonsDefeated": 2,
       "requiredSkeletons": [
@@ -99,6 +109,16 @@
       false,
       false
     ],
+    "has_give_xp": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
     "objectives": {
       "archersDefeated": 0,
       "requiredArchers": [
@@ -132,8 +152,12 @@
       false,
       false
     ],
+    "has_give_xp": [
+      false,
+      false
+    ],
     "objectives": {
-      "leftDefeated": 1,
+      "leftDefeated": 2,
       "requiredLeft": [
         10,
         50
@@ -159,8 +183,12 @@
       false,
       false
     ],
+    "has_give_xp": [
+      false,
+      false
+    ],
     "objectives": {
-      "rightDefeated": 1,
+      "rightDefeated": 3,
       "requiredRight": [
         10,
         50
@@ -186,6 +214,11 @@
       ]
     },
     "isCompleted": [
+      false,
+      false,
+      false
+    ],
+    "has_give_xp": [
       false,
       false,
       false
@@ -218,6 +251,10 @@
       false,
       false
     ],
+    "has_give_xp": [
+      false,
+      false
+    ],
     "objectives": {
       "requiredWaves": [
         1,
@@ -241,6 +278,10 @@
       ]
     },
     "isCompleted": [
+      false,
+      false
+    ],
+    "has_give_xp": [
       false,
       false
     ],
@@ -270,9 +311,13 @@
       false,
       false
     ],
+    "has_give_xp": [
+      false,
+      false
+    ],
     "objectives": {
-      "rightDefeated": 1,
-      "leftDefeated": 1,
+      "rightDefeated": 3,
+      "leftDefeated": 2,
       "requiredRight": [
         5,
         15
@@ -299,6 +344,10 @@
       ]
     },
     "isCompleted": [
+      false,
+      false
+    ],
+    "has_give_xp": [
       false,
       false
     ],

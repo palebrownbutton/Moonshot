@@ -34,11 +34,11 @@ def quest_list3():
 
 class QuestLevel():
 
-    def __init__(self, quest_id):
+    def __init__(self, quest_id, quest_data):
         
         self.quest_id = quest_id
         self.level = 0
-        self.has_given_xp = False
+        self.has_given_xp = quest_data.get("has_give_xp", [False] * len(quest_data["isCompleted"]))
     
     def update(self, quest):
 
@@ -47,12 +47,13 @@ class QuestLevel():
             self.level += 1
         if self.level >= len(quest["isCompleted"]):
             self.level = len(quest["isCompleted"]) - 1
-        
+        while len(self.has_given_xp) < len(quest["isCompleted"]):
+            self.has_given_xp.append(False)
         if self.level != old_level:
-            self.has_given_xp = False
+            self.has_given_xp[self.level] = False
 
 quests = quest_list3()
-quests_levels = {qid: QuestLevel(qid) for qid in quests.keys()}
+quests_levels = {qid: QuestLevel(qid, quest) for qid, quest in quests.items()}
 
 skeleton_current_wave = 0
 archer_current_wave = 0
@@ -128,15 +129,18 @@ def quest_update(enemy_type, direction, wave, current_archers, current_skeletons
         # elif hearts == True and quest_id == 9:
         #     quest["objectives"]["wavesDefeated"] = 0
 
-        if gained_xp and not quest_level.has_given_xp:
+        if gained_xp and not quest_level.has_given_xp[quest_level.level]:
             xp += quest["reward"]["xp"][quest_level.level]
-            quest_level.has_given_xp = True
-            gained_xp = False
-            print(xp)
+            quest_level.has_given_xp[quest_level.level] = True
 
         quest_level.update(quest)
 
     with open ("quest_list.json", "w") as file:
         json.dump({str(k): v for k, v in quests.items()}, file, indent=2)
-
     
+    with open("upgrades.json", "r+") as file:
+        data = json.load(file)
+        data[1]["total_xp"] += xp
+        file.seek(0)
+        json.dump(data, file, indent=4)
+        file.truncate()

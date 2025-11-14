@@ -1,7 +1,10 @@
 [
     {
-        "hp": 100,
+        "hp": 50,
         "strength": 10,
         "life spawn time": 60000
+    },
+    {
+        "total_xp": 50
     }
 ]

@@ -136,4 +136,4 @@ class Knight(AnimatedSprite):
             return
 
         self.defending = False
-        self.change_animation(f"{knight_number}/Idle.png", 128, 128)#
+        self.change_animation(f"{knight_number}/Idle.png", 128, 128)
