@@ -314,6 +314,26 @@ strength_icon = StillImage(40, 173, 228, 130, "strength_image.png")
 hp_icon = StillImage(333, 175, 130, 130, "hearts.png")
 lives_rate_icon = StillImage(577, 160, 155, 155, "clock.png")
 
+with open ("upgrades.json", "r") as file:
+    data = json.load(file)
+    total_xp = data[1]["total_xp"]
+    hp_upgrade_level = data[1]["upgrade_level"]["hp_upgrade"]
+    strength_upgrade_level = data[1]["upgrade_level"]["strength_upgrade"]
+    lives_rate_upgrade_level = data[1]["upgrade_level"]["life_spawn_time_upgrade"]
+
+total_xp_text = font.SysFont(None, 60)
+font.rendered_total_xp_text = total_xp_text.render(f"XP: {total_xp}", True, (255, 255, 255))
+
+upgrade_level_font = font.SysFont(None, 30)
+font.rendered_hp_upgrade_level_text = upgrade_level_font.render(f"{hp_upgrade_level}", True, (44, 59, 64))
+font.rendered_strength_upgrade_level_text = upgrade_level_font.render(f"{strength_upgrade_level}", True, (44, 59, 64))
+font.rendered_lives_rate_upgrade_level_text = upgrade_level_font.render(f"{lives_rate_upgrade_level}", True, (44, 59, 64))
+
+benefits = []
+for i in range(3):
+    benefit = StillImage(62 + (i * 250), 470, 175, 175, "benefits_button.png")
+    benefits.append(benefit)
+
 def upgrade_menu(window):
 
     background.draw(window)
@@ -322,15 +342,25 @@ def upgrade_menu(window):
     window.blit(overlay2, rect2.topleft)
     window.blit(overlay3, rect3.topleft)
 
-    window.blit(font.rendered_hp_text, (340, 330))
+    window.blit(font.rendered_total_xp_text, (615, 10))
+
+    window.blit(font.rendered_hp_text, (350, 330))
     window.blit(font.rendered_strength_text, (70, 330))
     window.blit(font.rendered_lives_rate, (565, 330))
-    window.blit(font.rendered_hp_num, (390, 325))
+    window.blit(font.rendered_hp_num, (400, 325))
     window.blit(font.rendered_strength_num, (177, 325))
     window.blit(font.rendered_lives_rate_num, (612, 360))
     strength_icon.draw(window)
     hp_icon.draw(window)
     lives_rate_icon.draw(window)
+
+    for benefit in benefits:
+        benefit.draw(window)
+
+    window.blit(font.rendered_hp_upgrade_level_text, (409, 549))
+    window.blit(font.rendered_strength_upgrade_level_text, (159, 549))
+    window.blit(font.rendered_lives_rate_upgrade_level_text, (659, 549))
+
     return True
 
 playAgian = Buttons(100, 200, 600, 600, "play_again_button.png", "playAgain")

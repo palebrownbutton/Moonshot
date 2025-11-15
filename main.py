@@ -142,7 +142,7 @@ def game_reset():
         hearts.append(heart)
 
     quests = quest_list2()
-    for quest in quests:
+    for quest in quests.values():
         if "wavesDefeated" in quest["objectives"]:
             quest["objectives"]["wavesDefeated"] = 0
     with open ("quest_list.json", "w") as file:
@@ -199,6 +199,8 @@ warrior_last_spawn_time = time.get_ticks()
 warriors_active = False
 first_warrior_spawned = False
 
+music = False
+
 while True:
 
     for e in event.get():
@@ -208,6 +210,9 @@ while True:
     dt = clock.tick(60)
 
     if is_home == True or StartScreen.instructions_open == True or StartScreen.quests_open == True:
+
+        music = False
+        mixer.music.stop()
 
         is_home = StartScreen.start_screen(window)
         if is_home == False and StartScreen.instructions_open == False and StartScreen.quests_open == False:
@@ -239,6 +244,10 @@ while True:
             except Exception:
                 pass
             try:
+                music = True
+            except Exception:
+                pass
+            try:
                 arrows.clear()
             except Exception:
                 pass
@@ -252,6 +261,8 @@ while True:
             character, is_home = select_character(window, ignore_return)
 
         else:
+
+            music = True
 
             pressed = key.get_pressed()
             now = time.get_ticks()
@@ -273,7 +284,7 @@ while True:
                     StartScreen.ignore_until = time.get_ticks() + 300
                     continue
 
-            if not mixer.music.get_busy():
+            if not mixer.music.get_busy() and music:
                 mixer.music.set_volume(0.3)
                 mixer.music.play(-1)
 

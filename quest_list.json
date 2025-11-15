@@ -33,7 +33,7 @@
       ]
     },
     "isCompleted": [
-      true,
+      false,
       false,
       false,
       false,
@@ -43,7 +43,7 @@
       false
     ],
     "has_give_xp": [
-      true,
+      false,
       false,
       false,
       false,
@@ -53,7 +53,7 @@
       false
     ],
     "objectives": {
-      "skeletonsDefeated": 2,
+      "skeletonsDefeated": 0,
       "requiredSkeletons": [
         1,
         10,
@@ -157,7 +157,7 @@
       false
     ],
     "objectives": {
-      "leftDefeated": 2,
+      "leftDefeated": 0,
       "requiredLeft": [
         10,
         50
@@ -316,8 +316,8 @@
       false
     ],
     "objectives": {
-      "rightDefeated": 3,
-      "leftDefeated": 2,
+      "rightDefeated": 0,
+      "leftDefeated": 0,
       "requiredRight": [
         5,
         15
