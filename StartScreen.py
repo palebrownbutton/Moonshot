@@ -1,6 +1,6 @@
 from pygame import *
 from AnimatedSprite import *
-from StillImage import StillImage
+from StillImage import StillImage, TextRender
 from QuestReader import *
 import time as pytime
 import json
@@ -32,10 +32,8 @@ instructions_button = Buttons(100, 430, 600, 600, "instructions_button.png", "in
 start_view_quests = Buttons(100, 300, 600, 600, "progress.png", "view_quests")
 background = StillImage(0, 0, 800, 800, "select_background.png")
 
-text1 = font.SysFont("Arial", 50)
-font.rendered_title = text1.render("Welcome to Bones and Blades!", True, (255, 255, 255))
-text2 = font.SysFont("Arial", 30)
-font.rendered_author = text2.render("By Simona", True, (255, 255, 255))
+text1 = TextRender("Arial", 50, (255, 255, 255), "Welcome to Bones and Blades!")
+text2 = TextRender("Arial", 30, (255, 255, 255), "By Simona")
 
 logo = StillImage(303, 160, 200, 200, "Bones and Blades Logo.png")
 
@@ -59,8 +57,8 @@ def start_screen(window):
         play.draw(window, is_selected)
         instructions_button.draw(window, is_selected)
         start_view_quests.draw(window, is_selected)
-        window.blit(font.rendered_title, (120, 50))
-        window.blit(font.rendered_author, (340, 110))
+        text1.draw(window, (120, 50))
+        text2.draw(window, (340, 110))
         logo.draw(window)
         return True
 
@@ -69,8 +67,8 @@ def start_screen(window):
         play.draw(window, is_selected)
         instructions_button.draw(window, is_selected)
         start_view_quests.draw(window, is_selected)
-        window.blit(font.rendered_title, (120, 50))
-        window.blit(font.rendered_author, (340, 110))
+        text1.draw(window, (120, 50))
+        text2.draw(window, (340, 110))
         logo.draw(window)
         if pressed[K_RETURN]:
             return True
@@ -84,8 +82,8 @@ def start_screen(window):
         instructions_button.draw(window, is_selected)
         start_view_quests.draw(window, is_selected)
         
-        window.blit(font.rendered_title, (120, 50))
-        window.blit(font.rendered_author, (340, 110))
+        text1.draw(window, (120, 50))
+        text2.draw(window, (340, 110))
         logo.draw(window)
 
         pressed = key.get_pressed()
@@ -123,8 +121,7 @@ def start_screen(window):
     return True
 
 instructions = StillImage(0, 195, 800, 533, "instructions.png")
-instructionstxt = font.SysFont("Arial", 70)
-font.rendered_instructionstext = instructionstxt.render("Instructions", True, (255, 255, 255))
+instructionstxt = TextRender(None, 70, (255, 255, 255), "Instructions")
 house_button = StillImage(5, 10, 90, 90, "house.png")
 
 def instructions_menu(window):
@@ -134,7 +131,7 @@ def instructions_menu(window):
 
     background.draw(window)
     instructions.draw(window)
-    window.blit(font.rendered_instructionstext, (250, 60))
+    instructionstxt.draw(window, (250, 60))
     house_button.draw(window)
 
     pressed_key = key.get_pressed()
@@ -168,18 +165,17 @@ for idx, (quest_id, quest) in enumerate(quests.items()):
         detail_font = font.SysFont(None, 30)
         rewards_font = font.SysFont(None, 50)
 
-        rendered_quest_title = title_font.render(quest["title"][level_index], True, (255, 255, 255))
-        rendered_quest_detail = detail_font.render(quest["details"][level_index], True, (200, 200, 200))
+        rendered_quest_title = TextRender(None, 50, (255, 255, 255), quest["title"][level_index]) 
+        rendered_quest_detail = TextRender(None, 30, (200, 200, 200), quest["details"][level_index])
         
         xp_amount = quest["reward"]["xp"][level_index]
-        rendered_quest_rewards = rewards_font.render(f"{xp_amount} XP", True, (212, 148, 11))
+        rendered_quest_rewards = TextRender(None, 50, (212, 148, 11), f"{xp_amount} XP")
 
         quest_titles.append(rendered_quest_title)
         quest_details.append(rendered_quest_detail)
         rewards_gain.append(rendered_quest_rewards)
 
-quest_list_word_text = font.SysFont(None, 100)
-font.rendered_quest_list_word = quest_list_word_text.render("Quests:", True, (255, 255, 255))
+quest_list_word_text = TextRender(None, 100, (255, 255, 255), "Quests:")
 
 padlock = StillImage(555, 20, 60, 60, "padlock.png")
 upgrades_button = StillImage(550, -100, 300, 300, "upgrades.png")
@@ -195,10 +191,17 @@ for i in range(total_levels):
 scroll_y = 0
 scroll_speed = 20
 TOP_LIMIT = 80
+
 upgrades_open = False
+click_cooldown = False
 
 def quests_menu(window):
-    global instructions_open, ignore_return_local, ignore_until, quests_open, scroll_y, scroll_speed, upgrades_open
+    global instructions_open, ignore_return_local, ignore_until, quests_open, scroll_y, scroll_speed, upgrades_open, click_cooldown
+
+    if click_cooldown:
+        if not mouse.get_pressed()[0]:
+            click_cooldown = False
+        return True
 
     if not upgrades_open:
 
@@ -216,7 +219,7 @@ def quests_menu(window):
         background.draw(window)
         house_button.draw(window)
         upgrades_button.draw(window)
-        window.blit(font.rendered_quest_list_word, (150, 20))
+        quest_list_word_text.draw(window, (150, 20))
 
         for i, (quest_id, level_index, is_locked) in enumerate(quest_title_mapping):
 
@@ -234,11 +237,11 @@ def quests_menu(window):
                 detail_font = font.SysFont(None, 30)
                 rewards_font = font.SysFont(None, 50)
 
-                rendered_quest_title = title_font.render(quest["title"][level_index], True, (255, 255, 255))
-                rendered_quest_detail = detail_font.render(quest["details"][level_index], True, (200, 200, 200))
+                rendered_quest_title = TextRender(None, 50, (255, 255, 255), quest["title"][level_index]) 
+                rendered_quest_detail = TextRender(None, 30, (200, 200, 200), quest["details"][level_index])
                 
                 xp_amount = quest["reward"]["xp"][level_index]
-                rendered_quest_rewards = rewards_font.render(f"{xp_amount} XP", True, (212, 148, 11))
+                rendered_quest_rewards = TextRender(None, 50, (212, 148, 11), f"{xp_amount} XP")
 
                 adjusted_box = Rect(150, y_offset - 10, 630, 80)
                 draw.rect(window, (135, 84, 3), adjusted_box, width=2)
@@ -260,9 +263,9 @@ def quests_menu(window):
                         s.fill((166, 41, 3, 100))
                         window.blit(s, (adjusted_box.x, adjusted_box.y))
 
-                window.blit(rendered_quest_title, (155, y_offset))
-                window.blit(rendered_quest_detail, (170, y_offset + 40))
-                window.blit(rendered_quest_rewards, (625, y_offset + 15))
+                window.blit(rendered_quest_title.rendered_text, (155, y_offset))
+                window.blit(rendered_quest_detail.rendered_text, (170, y_offset + 40))
+                window.blit(rendered_quest_rewards.rendered_text, (625, y_offset + 15))
 
         if (mouse_x >= house_button.rect.x and mouse_x <= house_button.rect.x + house_button.rect.width and mouse_y >= house_button.rect.y and mouse_y <= house_button.rect.y + house_button.rect.height):
             if mouse.get_pressed()[0]:
@@ -283,7 +286,7 @@ def quests_menu(window):
                 scroll_y = max(min(scroll_y, 0), -max_scroll)
 
     else:
-        upgrade_menu(window)
+        upgrades_open = upgrade_menu(window)
 
     return True
     
@@ -300,15 +303,12 @@ overlay3.fill((62, 64, 63, 180))
 with open("upgrades.json", "r") as file:
     knight_attributes = json.load(file)[0]
 
-hp_text = font.SysFont(None, 60)
-strength_text = font.SysFont(None, 30)
-font.rendered_hp_text = strength_text.render(f"HP:", True, (255, 255, 255))
-font.rendered_hp_num = hp_text.render(f"{knight_attributes['hp']}", True, (255, 255, 255))
-font.rendered_strength_text = strength_text.render(f"Strength:", True, (255, 255, 255))
-font.rendered_strength_num = hp_text.render(f"{knight_attributes['strength']}", True, (255, 255, 255))
-lives_rate = font.SysFont(None, 30)
-font.rendered_lives_rate = lives_rate.render(f"Lives spawn rate:", True, (255, 255, 255))
-font.rendered_lives_rate_num = hp_text.render(f"{int(knight_attributes['life spawn time'] / 1000)} s", True, (255, 255, 255))
+rendered_hp_text = TextRender(None, 30, (255, 255, 255), "HP:") 
+rendered_hp_num = TextRender(None, 60, (255, 255, 255), f"{knight_attributes['hp']}")
+rendered_strength_text = TextRender(None, 30, (255, 255, 255), "Strength:")
+rendered_strength_num = TextRender(None, 60, (255, 255, 255), f"{knight_attributes['strength']}")
+rendered_lives_rate = TextRender(None, 30, (255, 255, 255), "Lives spawn rate:")
+rendered_lives_rate_num = TextRender(None, 60, (255, 255, 255), f"{int(knight_attributes['life spawn time']/1000)} s")
 
 strength_icon = StillImage(40, 173, 228, 130, "strength_image.png")
 hp_icon = StillImage(333, 175, 130, 130, "hearts.png")
@@ -320,14 +320,20 @@ with open ("upgrades.json", "r") as file:
     hp_upgrade_level = data[1]["upgrade_level"]["hp_upgrade"]
     strength_upgrade_level = data[1]["upgrade_level"]["strength_upgrade"]
     lives_rate_upgrade_level = data[1]["upgrade_level"]["life_spawn_time_upgrade"]
+    hp_required_xp = data[1]["required_xp"]["hp_required_xp"][hp_upgrade_level]
+    strength_required_xp = data[1]["required_xp"]["strength_required_xp"][strength_upgrade_level]
+    lives_rate_required_xp = data[1]["required_xp"]["lives_spawn_time_required_xp"][lives_rate_upgrade_level]
 
-total_xp_text = font.SysFont(None, 60)
-font.rendered_total_xp_text = total_xp_text.render(f"XP: {total_xp}", True, (255, 255, 255))
+rendered_total_xp_text = TextRender(None, 60, (255, 255, 255), f"XP: {total_xp}")
 
-upgrade_level_font = font.SysFont(None, 30)
-font.rendered_hp_upgrade_level_text = upgrade_level_font.render(f"{hp_upgrade_level}", True, (44, 59, 64))
-font.rendered_strength_upgrade_level_text = upgrade_level_font.render(f"{strength_upgrade_level}", True, (44, 59, 64))
-font.rendered_lives_rate_upgrade_level_text = upgrade_level_font.render(f"{lives_rate_upgrade_level}", True, (44, 59, 64))
+rendered_hp_upgrade_level_text = TextRender(None, 50, (255, 255, 255), f"Level: {hp_upgrade_level}/10")
+rendered_strength_upgrade_level_text = TextRender(None, 50, (255, 255, 255), f"Level: {strength_upgrade_level}/10")
+rendered_lives_rate_upgrade_level_text = TextRender(None, 50, (255, 255, 255), f"Level: {lives_rate_upgrade_level}/10")
+rendered_hp_required_xp_text = TextRender(None, 30, (44, 59, 64), f"{hp_required_xp}")
+rendered_strength_required_xp_text = TextRender(None, 30, (44, 59, 64), f"{strength_required_xp}")
+rendered_lives_rate_required_xp_text = TextRender(None, 30, (44, 59, 64), f"{lives_rate_required_xp}")
+
+back_arrow = StillImage(5, 10, 90, 90, "back_arrow.png")
 
 benefits = []
 for i in range(3):
@@ -336,20 +342,25 @@ for i in range(3):
 
 def upgrade_menu(window):
 
+    mouse_x, mouse_y = mouse.get_pos()
+
     background.draw(window)
+
+    back_arrow.draw(window)
     
     window.blit(overlay1, rect1.topleft)
     window.blit(overlay2, rect2.topleft)
     window.blit(overlay3, rect3.topleft)
 
-    window.blit(font.rendered_total_xp_text, (615, 10))
+    rendered_total_xp_text.draw(window, (615, 10))
 
-    window.blit(font.rendered_hp_text, (350, 330))
-    window.blit(font.rendered_strength_text, (70, 330))
-    window.blit(font.rendered_lives_rate, (565, 330))
-    window.blit(font.rendered_hp_num, (400, 325))
-    window.blit(font.rendered_strength_num, (177, 325))
-    window.blit(font.rendered_lives_rate_num, (612, 360))
+    rendered_hp_text.draw(window, (350, 330))
+    rendered_strength_text.draw(window, (70, 330))
+    rendered_lives_rate.draw(window, (565, 330))
+    rendered_hp_num.draw(window, (400, 325))
+    rendered_strength_num.draw(window, (177, 325))
+    rendered_lives_rate_num.draw(window, (612, 360))
+
     strength_icon.draw(window)
     hp_icon.draw(window)
     lives_rate_icon.draw(window)
@@ -357,24 +368,32 @@ def upgrade_menu(window):
     for benefit in benefits:
         benefit.draw(window)
 
-    window.blit(font.rendered_hp_upgrade_level_text, (409, 549))
-    window.blit(font.rendered_strength_upgrade_level_text, (159, 549))
-    window.blit(font.rendered_lives_rate_upgrade_level_text, (659, 549))
+    rendered_hp_upgrade_level_text.draw(window, (310, 430))
+    rendered_strength_upgrade_level_text.draw(window, (60, 430))
+    rendered_lives_rate_upgrade_level_text.draw(window, (560, 430))
+
+    rendered_hp_required_xp_text.draw(window, (409, 549))
+    rendered_strength_required_xp_text.draw(window, (159, 549))
+    rendered_lives_rate_required_xp_text.draw(window, (659, 549)) 
+
+    if (mouse_x >= back_arrow.rect.x and mouse_x <= back_arrow.rect.x + back_arrow.rect.width and mouse_y >= back_arrow.rect.y and mouse_y <= back_arrow.rect.y + back_arrow.rect.height):
+            if mouse.get_pressed()[0]:
+                global click_cooldown
+                click_cooldown = True
+                return False
 
     return True
 
 playAgian = Buttons(100, 200, 600, 600, "play_again_button.png", "playAgain")
 
 home = Buttons(100, 380, 600, 600, "home_button.png", "home")
-game_over_txt = font.SysFont("Arial", 150)
-font.rendered_game_over = game_over_txt.render("Game Over...", True, (255, 0, 0))
+rendered_game_over = TextRender(None, 150, (255, 0, 0), "Game Over...")
 
 with open ("highscore.txt", 'r') as file:
     lines = file.readlines()
     numbers = [int(line.strip()) for line in lines if line.strip().isdigit()]
 highscore = max(numbers) if numbers else 0
-highscore_text = font.SysFont("Arial", 50)
-font.rendered_highscore = highscore_text.render(f"High Score: {highscore}", True, (255, 255, 255))
+rendered_highscore = TextRender(None, 50, (255, 255, 255), f"High Score: {highscore}")
 
 pause_box = StillImage(-5, -30, 800, 900, "pause_box.png")
 continue_gameplay = Buttons(200, 130, 400, 400, "continue_button.png", "continue_gameplay")
@@ -530,8 +549,8 @@ def game_over(window):
     background.draw(window)
     playAgian.draw(window, is_selected)
     home.draw(window, is_selected)
-    window.blit(font.rendered_game_over, (45, 50))
-    window.blit(font.rendered_highscore, (255, 250))
+    rendered_game_over.draw(window, (45, 50))
+    rendered_highscore.draw(window, (255, 250))
 
     pressed= key.get_pressed()
     now = time.get_ticks()
@@ -556,7 +575,3 @@ def game_over(window):
             is_selected = "play"
             instructions_open = False
             return True
-        
-def return_home():
-
-    pass
